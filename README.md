@@ -18,7 +18,6 @@ Il progetto `CanINO` è un dosatore automatico per animali, progettato per forni
 
 ## Funzionalità
 
-
 Le funzionalità offerte sono le seguenti:
 
 1. Dosaggio del Cibo: Il dosatore può erogare una quantità specifica di cibo, regolata tramite il potenziometro, nel piatto del cane o del gatto.
@@ -45,4 +44,3 @@ Il progetto "CanINO" funziona nel seguente modo:
 4. Quando arriva l'ora impostata, il dosatore attiva i servo motori per erogare la quantità di cibo impostata nel piatto del cane o del gatto.
 5. La cella di carico misura il peso del cibo nel contenitore e aggiorna le informazioni sul display.
 6. La pompa dell'acqua riempie automaticamente la ciotola dell'acqua potabile ad intervalli regolari.
-
