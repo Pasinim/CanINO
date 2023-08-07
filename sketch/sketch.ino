@@ -11,8 +11,11 @@
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 const int potPin = A0; // Pin analogico a cui è collegato il potenziometro
-const int buttonPin = 1;
-// -- sistemare peso, non ha senso 1024 g di cibo
+const int buttonPin = 2;
+
+//  Range peso pasto, rispettivamente minimo e massimo
+ int lower = 50;
+ int upper = 350;
 
 int buttonValue = 0;
 
@@ -27,14 +30,33 @@ void setup() {
 }
 
 void loop() {
+  int buttonValue = digitalRead(2);
+  // if (buttonValue == HIGH) {
+    
+  //   digitalWrite(13, LOW);
+
+  // } else {
+
+  //   digitalWrite(13, HIGH);
+
+  // }
+
+
+
   char buffer[100];
+  
   int vPotenziometro = analogRead(potPin); // Legge il valore del potenziometro (da 0 a 1023)
-  Serial.println("Valore potenziometro: ");
+  int vConvertito = map(vPotenziometro, 0, 1023, lower, upper);
+
+    Serial.print(vConvertito);
+    Serial.print(",");
     Serial.println(vPotenziometro);
 
   display.clearDisplay();
   display.setCursor(0, 0);
-  sprintf(buffer, "Peso: \n%d g\n", vPotenziometro);
+  sprintf(buffer, "VIniziale: %d\n VConvertito %d\n", vPotenziometro, vConvertito);
+
+  // sprintf(buffer, "Peso: \n%d g\n%d", vConvertito, buttonValue);
   display.println(buffer);
   display.display();
   delay(500); // Aggiungi un piccolo ritardo per evitare letture troppo veloci
