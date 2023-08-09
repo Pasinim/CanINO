@@ -12,7 +12,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 const int potPin = A0; // Pin analogico a cui è collegato il potenziometro
 const int switchPin = 2;
+const int buttonPin = 3;
 char buffer[100];
+int quantita;
 
 
 //  Range peso pasto, rispettivamente minimo e massimo
@@ -27,31 +29,27 @@ void setup() {
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   pinMode(switchPin, INPUT_PULLUP);
-  // La resistenza di pull-up interna imposta il pin come HIGH
-  // quando il pin è configurato come input digitale e la resistenza
-  // di pull-up interna è abilitata, quindi l'interrupt viene attivato quando il segnale va da HIGH -> LOW
-  
+  pinMode(buttonPin, INPUT_PULLUP);
+ 
 }
 
-void setupMode(int valorePotenziometro){
-    int quantita = map(valorePotenziometro, 0, 1023, lower, upper);
+int setupMode(){
+    int valorePotenziometro = analogRead(potPin);
+    quantita = map(valorePotenziometro, 0, 1023, lower, upper);
     sprintf(buffer, "--- Setup ---\nInserisci la quantità di cibo da erogare: %dg", quantita);
-
+    return quantita;
 }
 
 
 void loop() { 
   int switchValue = digitalRead(switchPin);
-  int vPotenziometro = analogRead(potPin);
   display.clearDisplay();
   display.setCursor(0, 0);
   
   if (switchValue == HIGH) {
-    setupMode(vPotenziometro);
+    quantita = setupMode();
   } else {
-       // Legge il valore del potenziometro (da 0 a 1023)
-    int vConvertito = map(vPotenziometro, 0, 1023, lower, upper);
-    sprintf(buffer, "VIniziale: %d\n VConvertito %d\n", vPotenziometro, vConvertito);
+    sprintf(buffer, "Quantita cibo: %d\n", quantita);
 
   }
   display.println(buffer);
