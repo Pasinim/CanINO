@@ -40,6 +40,9 @@ void setup() {
   pinMode(buttonPin, INPUT_PULLUP);
 }
 
+/** Permette di impostare l'orario in cui erogare il cibo tramite il potenziometro.
+ Il passo dell'orario è definito dalla variabile `intervallo` (in minuti). 
+ */
 void timeSetup(){
   int valorePotenziometro = analogRead(potPin);
   int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); // Mappa il valore da 0 a 47
@@ -48,14 +51,21 @@ void timeSetup(){
   sprintf(buffer, "Imposta l'orario di erogazione:\n %d:%d", orario[0], orario[1]);
 }
 
+/** Permette di impostare la quantità (g) di peso da erogare tramite il potenziometro.
+ Il range di valori che assume va da `lower` a `upper`. 
+ */
 void weightSetup(){
   int valorePotenziometro = analogRead(potPin);
   quantita = map(valorePotenziometro, 0, 1023, lower, upper);
   sprintf(buffer, "Imposta la quantita di cibo: %d", quantita);
 }
 
+/**
+  Modalità che permette di modificare la quantità di cibo da erogare
+  e l'orario in cui viene erogato.
+  Premendo il pulsante è possibile alternare tra l'impostazione dell'orario e del peso.
+*/
 void setupMode(){
-
   buttonValue = digitalRead(buttonPin);
   if (buttonValue != lastButtonValue) {
     if (buttonValue == HIGH) {
