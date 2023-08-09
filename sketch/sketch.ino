@@ -15,6 +15,12 @@ const int switchPin = 2;
 const int buttonPin = 3;
 char buffer[100];
 int quantita;
+int orario[2];
+
+int buttonState = 0;        
+int lastButtonState = 0; 
+int buttonPushCounter = 0;    
+
 
 
 //  Range peso pasto, rispettivamente minimo e massimo
@@ -33,12 +39,69 @@ void setup() {
  
 }
 
-int setupMode(){
-    int valorePotenziometro = analogRead(potPin);
-    quantita = map(valorePotenziometro, 0, 1023, lower, upper);
-    sprintf(buffer, "--- Setup ---\nInserisci la quantità di cibo da erogare: %dg", quantita);
-    return quantita;
+void timeSetup(){
+  int intervalloMinuti = 10;
+  int valorePotenziometro = analogRead(potPin);
+  int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervalloMinuti*24); // Mappa il valore da 0 a 47
+  
+  // Calcola le ore e i minuti in base all'impostazione corrente
+  orario[0] = timeValue / (60/intervalloMinuti);
+  orario[1] = (timeValue % (60/intervalloMinuti)) * intervalloMinuti;
+  sprintf(buffer, "Imposta l'orario di erogazione:\n %d:%d", orario[0], orario[1]);
+
+    // Serial.println("ORARIO");
+
 }
+
+void weightSetup(){
+  int valorePotenziometro = analogRead(potPin);
+  quantita = map(valorePotenziometro, 0, 1023, lower, upper);
+  // Serial.println("Q");
+  sprintf(buffer, "Imposta la quantita di cibo: %d", quantita);
+  
+
+    
+}
+
+void setupMode2(){
+  buttonState = digitalRead(buttonPin);
+  if (buttonState != lastButtonState) {
+    if (buttonState == HIGH) {
+      buttonPushCounter++;
+      Serial.println(buttonPushCounter);
+    } 
+    delay(50);
+  }
+  lastButtonState = buttonState;
+  if (buttonPushCounter%2==0){
+    timeSetup();
+  }else{
+    weightSetup();
+  }
+}
+
+// int setupMode(){
+//     int valorePotenziometro = analogRead(potPin);
+//     // int buttonCounter = 0;
+//     // int buttonState = digitalRead(buttonPin);        // current state of the button
+//     // int lastButtonState = 0; 
+//     // if (buttonState != lastButtonState) {
+//     //   if (buttonState == HIGH) 
+//     //     buttonCounter++;
+//     //   lastButtonState = buttonState;
+//     //   }
+
+//     // Serial.println(buttonCounter);
+//     if (buttonCounter%2==0){
+//       quantita = map(valorePotenziometro, 0, 1023, lower, upper);
+//     }else{
+//       int hh, mm;
+//       hh, mm = timeSetup(valorePotenziometro);
+      
+//     }
+//     sprintf(buffer, "--- Setup ---\nInserisci la quantità di cibo da erogare: %dg", quantita);
+//     return quantita;
+// }
 
 
 void loop() { 
@@ -47,10 +110,9 @@ void loop() {
   display.setCursor(0, 0);
   
   if (switchValue == HIGH) {
-    quantita = setupMode();
+    setupMode2();
   } else {
-    sprintf(buffer, "Quantita cibo: %d\n", quantita);
-
+    sprintf(buffer, "Quantita cibo: %d, orario %d:%d\n", quantita, orario[0], orario[1]);
   }
   display.println(buffer);
   display.display();

@@ -1,43 +1,34 @@
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-const int switchPin = 2;  // the pin that the pushbutton is attached to
+// this constant won't change:
+const int buttonPin = 3;  // the pin that the pushbutton is attached to
+const int ledPin = 13;    // the pin that the LED is attached to
 
+// Variables will change:
+int buttonPushCounter = 0;  // counter for the number of button presses
+int buttonState = 0;        // current state of the button
+int lastButtonState = 0;    // previous state of the button
 
-int switchValue = 0;        
 void setup() {
- Serial.begin(9600); // Inizializza la comunicazione seriale a 9600 bps
-  Wire.begin();
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // L'indirizzo I2C del display potrebbe essere diverso (0x3C è l'indirizzo più comune)
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.setTextColor(SSD1306_WHITE);  
-  // initialize the LED as an output:
-  pinMode(switchPin, INPUT_PULLUP);
+  pinMode(buttonPin, INPUT_PULLUP);
   Serial.begin(9600);
 }
 
-void setupMode(){
-    display.println("SONO IN SETUP");
-    display.println(switchValue);
-    return;  
-}
 
 void loop() {
-  switchValue = digitalRead(switchPin);
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  if (switchValue == HIGH) {
-    setupMode();
-  }else{
-    display.println(switchValue);
-  }
-  delay(100);
-  display.display();
 
-    
+  buttonState = digitalRead(buttonPin);
+  if (buttonState != lastButtonState) {
+    if (buttonState == HIGH) {
+      buttonPushCounter++;
+      Serial.println(buttonPushCounter);
+    } 
+    delay(50);
+  }
+  // save the current state as the last state, for next time through the loop
+  lastButtonState = buttonState;
+  if (buttonPushCounter%2==0){
+    Serial.println("ORARIO");
+  }else{
+    Serial.println("QUANTITA");
+  }
 }
