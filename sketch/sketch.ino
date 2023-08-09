@@ -11,53 +11,50 @@
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 const int potPin = A0; // Pin analogico a cui è collegato il potenziometro
-const int buttonPin = 2;
+const int switchPin = 2;
+char buffer[100];
+
 
 //  Range peso pasto, rispettivamente minimo e massimo
- int lower = 50;
+ int lower = 150;
  int upper = 350;
-
-int buttonValue = 0;
 
 void setup() {                                          
   Serial.begin(9600); // Inizializza la comunicazione seriale a 9600 bps
   Wire.begin();
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // L'indirizzo I2C del display potrebbe essere diverso (0x3C è l'indirizzo più comune)
   display.clearDisplay();
-  display.setTextSize(2);
+  display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
+  pinMode(switchPin, INPUT_PULLUP);
+  // La resistenza di pull-up interna imposta il pin come HIGH
+  // quando il pin è configurato come input digitale e la resistenza
+  // di pull-up interna è abilitata, quindi l'interrupt viene attivato quando il segnale va da HIGH -> LOW
   
 }
 
-void loop() {
-  int buttonValue = digitalRead(2);
-  // if (buttonValue == HIGH) {
-    
-  //   digitalWrite(13, LOW);
+void setupMode(int valorePotenziometro){
+    int quantita = map(valorePotenziometro, 0, 1023, lower, upper);
+    sprintf(buffer, "--- Setup ---\nInserisci la quantità di cibo da erogare: %dg", quantita);
 
-  // } else {
-
-  //   digitalWrite(13, HIGH);
-
-  // }
+}
 
 
-
-  char buffer[100];
-  
-  int vPotenziometro = analogRead(potPin); // Legge il valore del potenziometro (da 0 a 1023)
-  int vConvertito = map(vPotenziometro, 0, 1023, lower, upper);
-
-    Serial.print(vConvertito);
-    Serial.print(",");
-    Serial.println(vPotenziometro);
-
+void loop() { 
+  int switchValue = digitalRead(switchPin);
+  int vPotenziometro = analogRead(potPin);
   display.clearDisplay();
   display.setCursor(0, 0);
-  sprintf(buffer, "VIniziale: %d\n VConvertito %d\n", vPotenziometro, vConvertito);
+  
+  if (switchValue == HIGH) {
+    setupMode(vPotenziometro);
+  } else {
+       // Legge il valore del potenziometro (da 0 a 1023)
+    int vConvertito = map(vPotenziometro, 0, 1023, lower, upper);
+    sprintf(buffer, "VIniziale: %d\n VConvertito %d\n", vPotenziometro, vConvertito);
 
-  // sprintf(buffer, "Peso: \n%d g\n%d", vConvertito, buttonValue);
+  }
   display.println(buffer);
   display.display();
-  delay(500); // Aggiungi un piccolo ritardo per evitare letture troppo veloci
+  delay(50);
 }
