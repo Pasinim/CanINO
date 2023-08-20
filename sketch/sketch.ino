@@ -29,6 +29,16 @@ int buttonPushCounter = 0;   /** Contatore che tiene traccia del numero di press
 const int lower = 150;
 const int upper = 350;
 
+/** 
+Metodo utile per il debugging
+*/
+void debug(){
+  char buffer[50];
+  // Stampo il valore della SetupMode();
+  sprintf(buffer, "Valore switch: %s", digitalRead(switchPin) == HIGH ? "SetupMode attiva" : "SetupMode NON attiva");
+  Serial.println(buffer);
+  delay(500);
+} 
 void setup() {                                          
   Serial.begin(9600); // Inizializza la comunicazione seriale a 9600 bps
   Wire.begin();
@@ -84,6 +94,7 @@ void setupMode(){
 
 
 void loop() { 
+  debug();
   int switchValue = digitalRead(switchPin);
   display.clearDisplay();
   display.setCursor(0, 0);
