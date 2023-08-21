@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "HX711.h"
 /** */  
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -14,6 +15,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 const int potPin = A0; 
 const int switchPin = 2;
 const int buttonPin = 3;
+const int data_loadCell = 6;
+const int clock_loadCell = 7;
 
 /** Definizione delle variabili */
 char buffer[100]; /** buffer per la scrittura sullo schermo OLED */
@@ -27,6 +30,7 @@ int buttonPushCounter = 0;   /** Contatore che tiene traccia del numero di press
 
 float calibration_factor = -14088.645507; /** Valore di calibrazione per la cella di carico*/ 
 float offset_hx711 = 11241; /** Offset della cella di carico */ 
+HX711 scale; /** Variabile di istanza per utilizzare il modulo HX711*/
 
 
 /** Range quantita di cibo erogabile, rispettivamente minimo e massimo */
@@ -57,6 +61,11 @@ void setup() {
   display.setTextColor(SSD1306_WHITE);
   pinMode(switchPin, INPUT_PULLUP);
   pinMode(buttonPin, INPUT_PULLUP);
+  scale.begin(data_loadCell, clock_loadCell);
+  scale.set_offset(offset_hx711); 
+  scale.set_scale(calibration_factor);
+
+
 }
 
 /** Permette di impostare l'orario in cui erogare il cibo tramite il potenziometro.
@@ -103,7 +112,7 @@ void setupMode(){
 
 
 void loop() { 
-  // debug();
+  -7debug();
   int switchValue = digitalRead(switchPin);
   display.clearDisplay();
   display.setCursor(0, 0);
