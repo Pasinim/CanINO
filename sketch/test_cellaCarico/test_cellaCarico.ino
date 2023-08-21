@@ -16,23 +16,20 @@ uint32_t start, stop;
 volatile float f;
 
 float calibration_factor = -14088.645507;
+uint32_t offset_hx = 11241;
 
 void setup()
 {
   Serial.begin(9600);
-  Serial.println(__FILE__);
-  Serial.print("LIBRARY VERSION: ");
-  Serial.println(HX711_LIB_VERSION);
-  Serial.println();
-
   myScale.begin(dataPin, clockPin);
-   myScale.set_offset(11241); 
+   myScale.set_offset(offset_hx); 
    myScale.set_scale(calibration_factor);
 
 }
 
 void loop()
 {
+  delay(500);
   // calibrate();
   Serial.print("Reading: ");
   float units = myScale.get_units(); 
