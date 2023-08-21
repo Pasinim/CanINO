@@ -50,7 +50,11 @@ Il progetto "CanINO" funziona nel seguente modo:
 
 ## Calibrazione cella di carico
 
-```c++
+Il HX711 è un convertitore analogico-digitale (ADC) con una risoluzione fissa di 24 bit e prima di utilizzarla per misurare il peso è necessario effettuare una calibrazione per ottenere letture accurate e coerenti dalla cella di carico collegata.
+
+La calibrazione è stata eseguita con il seguente codice, i valori ottenuti sono stati salvati nelle variabili `offset_hx711` e `calibration_factor`.  
+
+```c
 void calibrate()
 {
   Serial.println("\n\nCALIBRATION\n===========");

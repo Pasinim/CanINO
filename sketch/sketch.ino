@@ -25,6 +25,10 @@ int buttonValue = 0;      /** Segnale del pulsante */
 int lastButtonValue = 0; /** Ultimo segnale letto del pulsante*/  
 int buttonPushCounter = 0;   /** Contatore che tiene traccia del numero di pressioni del tasto*/   
 
+float calibration_factor = -14088.645507; /** Valore di calibrazione per la cella di carico*/ 
+float offset_hx711 = 11241; /** Offset della cella di carico */ 
+
+
 /** Range quantita di cibo erogabile, rispettivamente minimo e massimo */
 const int lower = 150;
 const int upper = 350;
@@ -37,8 +41,13 @@ void debug(){
   // Stampo il valore della SetupMode();
   sprintf(buffer, "Valore switch: %s", digitalRead(switchPin) == HIGH ? "SetupMode attiva" : "SetupMode NON attiva");
   Serial.println(buffer);
-  delay(500);
+   if (buttonValue == LOW) {
+      Serial.println("Tasto premuto");
+    } 
+  delay(50);
 } 
+
+/** ------------------------------------------------------------------------------------ */
 void setup() {                                          
   Serial.begin(9600); // Inizializza la comunicazione seriale a 9600 bps
   Wire.begin();
@@ -94,7 +103,7 @@ void setupMode(){
 
 
 void loop() { 
-  debug();
+  // debug();
   int switchValue = digitalRead(switchPin);
   display.clearDisplay();
   display.setCursor(0, 0);

@@ -16,7 +16,7 @@ uint32_t start, stop;
 volatile float f;
 
 float calibration_factor = -14088.645507;
-uint32_t offset_hx = 11241;
+float offset_hx = 11241;
 
 void setup()
 {
@@ -52,8 +52,6 @@ void loop()
   }
 
 }
-
-
 
 void calibrate()
 {
