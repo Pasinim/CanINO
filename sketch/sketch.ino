@@ -28,8 +28,8 @@ int buttonValue = 0;      /** Segnale del pulsante */
 int lastButtonValue = 0; /** Ultimo segnale letto del pulsante*/  
 int buttonPushCounter = 0;   /** Contatore che tiene traccia del numero di pressioni del tasto*/   
 
-float calibration_factor = -14088.645507; /** Valore di calibrazione per la cella di carico*/ 
-float offset_hx711 = 11241; /** Offset della cella di carico */ 
+float calibration_factor = 2017.817626; /** Valore di calibrazione per la cella di carico*/ 
+float offset_hx711 = 268839; /** Offset della cella di carico */ 
 HX711 scale; /** Variabile di istanza per utilizzare il modulo HX711*/
 
 
@@ -48,7 +48,7 @@ void debug(){
    if (buttonValue == LOW) {
       Serial.println("Tasto premuto");
     } 
-  delay(50);
+  delay(500);
 } 
 
 /** ------------------------------------------------------------------------------------ */
@@ -110,9 +110,15 @@ void setupMode(){
   }
 }
 
+/** Confronta l'orario impostato con l'orario attuale
+*/
+void checkTime(){
+
+}
+
 
 void loop() { 
-  -7debug();
+  // debug();
   int switchValue = digitalRead(switchPin);
   display.clearDisplay();
   display.setCursor(0, 0);
