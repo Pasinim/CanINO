@@ -15,8 +15,8 @@ uint8_t clockPin = 7;
 uint32_t start, stop;
 volatile float f;
 
-float calibration_factor = -14088.645507;
-float offset_hx = 11241;
+float calibration_factor = 2017.817626;
+float offset_hx = 268839;
 
 void setup()
 {
@@ -29,6 +29,7 @@ void setup()
 
 void loop()
 {
+  // calibrate();
   delay(500);
   // calibrate();
   Serial.print("Reading: ");
