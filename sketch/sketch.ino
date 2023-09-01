@@ -3,6 +3,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include "HX711.h"
+#include "RTClib.h"
 /** */  
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -31,6 +32,7 @@ int buttonPushCounter = 0;   /** Contatore che tiene traccia del numero di press
 float calibration_factor = 2017.817626; /** Valore di calibrazione per la cella di carico*/ 
 float offset_hx711 = 268839; /** Offset della cella di carico */ 
 HX711 scale; /** Variabile di istanza per utilizzare il modulo HX711*/
+RTC_DS1307 rtc;  /** Variabile di istanza per utilizzare il modulo rtc*/
 
 
 /** Range quantita di cibo erogabile, rispettivamente minimo e massimo */
@@ -48,6 +50,8 @@ void debug(){
    if (buttonValue == LOW) {
       Serial.println("Tasto premuto");
     } 
+    DateTime time = rtc.now();
+   Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
   delay(500);
 } 
 
@@ -65,6 +69,15 @@ void setup() {
   scale.set_offset(offset_hx711); 
   scale.set_scale(calibration_factor);
 
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    Serial.flush();
+    while (1) delay(10);
+  }
+
+  if (! rtc.isrunning()) {
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
 
 }
 
@@ -110,23 +123,32 @@ void setupMode(){
   }
 }
 
-/** Confronta l'orario impostato con l'orario attuale
-*/
 void checkTime(){
+   DateTime time = rtc.now();
+   Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
+
 
 }
 
 
+
 void loop() { 
+  checkTime();
   // debug();
-  int switchValue = digitalRead(switchPin);
-  display.clearDisplay();
-  display.setCursor(0, 0);
+  //  DateTime time = rtc.now();
+  //  Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
+
+
+
+   int switchValue = digitalRead(switchPin);
+   display.clearDisplay();
+   display.setCursor(0, 0);
   if (switchValue == HIGH) setupMode();
    else {
     sprintf(buffer, "Quantita cibo: %d, orario %d:%d\n", quantita, orario[0], orario[1]);
   }
   display.println(buffer);
   display.display();
+  // delay(5000);
   
 }
