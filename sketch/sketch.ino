@@ -32,8 +32,8 @@ int buttonPushCounter = 0;   /** Contatore che tiene traccia del numero di press
 float calibration_factor = 2017.817626; /** Valore di calibrazione per la cella di carico*/ 
 float offset_hx711 = 268839; /** Offset della cella di carico */ 
 HX711 scale; /** Variabile di istanza per utilizzare il modulo HX711*/
-RTC_DS1307 rtc;  /** Variabile di istanza per utilizzare il modulo rtc*/
 
+RTC_DS1307 rtc;  /** Variabile di istanza per utilizzare il modulo rtc*/
 
 /** Range quantita di cibo erogabile, rispettivamente minimo e massimo */
 const int lower = 150;
@@ -78,7 +78,6 @@ void setup() {
   if (! rtc.isrunning()) {
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
-
 }
 
 /** Permette di impostare l'orario in cui erogare il cibo tramite il potenziometro.
@@ -89,7 +88,13 @@ void timeSetup(){
   int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); // Mappa il valore da 0 a 47
   orario[0] = timeValue / (60/intervallo);
   orario[1] = (timeValue % (60/intervallo)) * intervallo;
-  sprintf(buffer, "Imposta l'orario di erogazione:\n %d:%d", orario[0], orario[1]);
+  sprintf(buffer, "Imposta l'orario di erogazione: %d:%d \n", orario[0], orario[1]);
+  DateTime orarioErogazione(rtc.now().year(), rtc.now().month(), rtc.now().day(), orario[0], orario[1], 0);
+
+
+
+
+  
 }
 
 /** Permette di impostare la quantità (g) di peso da erogare tramite il potenziometro.
@@ -111,7 +116,6 @@ void setupMode(){
   if (buttonValue != lastButtonValue) {
     if (buttonValue == HIGH) {
       buttonPushCounter++;
-      // Serial.println(buttonPushCounter);
     } 
     delay(50);
   }
@@ -133,13 +137,10 @@ void checkTime(){
 
 
 void loop() { 
-  checkTime();
+  // checkTime();
   // debug();
   //  DateTime time = rtc.now();
   //  Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
-
-
-
    int switchValue = digitalRead(switchPin);
    display.clearDisplay();
    display.setCursor(0, 0);
@@ -147,8 +148,10 @@ void loop() {
    else {
     sprintf(buffer, "Quantita cibo: %d, orario %d:%d\n", quantita, orario[0], orario[1]);
   }
+  //se metto queste due righe nell'else non stampa correttamente quando entra in setupMode()
   display.println(buffer);
   display.display();
+
   // delay(5000);
   
 }
