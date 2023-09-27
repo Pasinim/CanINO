@@ -43,7 +43,7 @@ const int upper = 350;
 Metodo utile per il debugging
 */
 void debug(){
-  char buffer[50];
+  // char buffer[50];
   // Stampo il valore della SetupMode();
   sprintf(buffer, "Valore switch: %s", digitalRead(switchPin) == HIGH ? "SetupMode attiva" : "SetupMode NON attiva");
   Serial.println(buffer);
@@ -130,27 +130,28 @@ void setupMode(){
 void checkTime(){
    DateTime time = rtc.now();
    Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
-
-
 }
-
 
 
 void loop() { 
   // checkTime();
   // debug();
-  //  DateTime time = rtc.now();
+  DateTime time = rtc.now();
   //  Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
    int switchValue = digitalRead(switchPin);
    display.clearDisplay();
    display.setCursor(0, 0);
   if (switchValue == HIGH) setupMode();
    else {
-    sprintf(buffer, "Quantita cibo: %d, orario %d:%d\n", quantita, orario[0], orario[1]);
+    sprintf(buffer, "\t\t\t\t\t %02d:%02d:%02d \t\t\t\t\t\n\nVerranno erogati %d grammi di cibo alle\n %02d:%02d\n", time.hour(), time.minute(), time.second(), quantita, orario[0], orario[1]);
   }
   //se metto queste due righe nell'else non stampa correttamente quando entra in setupMode()
   display.println(buffer);
   display.display();
+  // display.println(buffer);
+  // display.display();
+  
+  
 
   // delay(5000);
   
