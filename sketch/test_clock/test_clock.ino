@@ -7,13 +7,29 @@
 ** Created: 2015-06-01 by AxelTB
 ** Last Edit:
 */
-
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include "RTClib.h"
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+// Creo un oggetto display. Vengono impostate le grandezze del display,
+//  viene inizializzata la libreria per comunicare tramite il bus I2C
+// L'ultimo parametro specifica l'indirizzo del display oled. Con -1 prova a identificarlo automaticamente 
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
 
 RTC_DS1307 rtc;
 
 void setup () {
   Serial.begin(9600);
+  Wire.begin();
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // L'indirizzo I2C del display potrebbe essere diverso (0x3C è l'indirizzo più comune)
+
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
 
 
 
@@ -41,19 +57,33 @@ void setup () {
 }
 
 void loop() {
+  char buffer[100]; 
+
  DateTime time = rtc.now();
+  display.clearDisplay();
+  display.setCursor(0, 0);
 
- //Full Timestamp
- Serial.println(String("DateTime::TIMESTAMP_FULL:\t")+time.timestamp(DateTime::TIMESTAMP_FULL));
+//  //Full Timestamp
+//  Serial.println(String("DateTime::TIMESTAMP_FULL:\t")+time.timestamp(DateTime::TIMESTAMP_FULL));
 
- //Date Only
- Serial.println(String("DateTime::TIMESTAMP_DATE:\t")+time.timestamp(DateTime::TIMESTAMP_DATE));
+//  //Date Only
+//  Serial.println(String("DateTime::TIMESTAMP_DATE:\t")+time.timestamp(DateTime::TIMESTAMP_DATE));
 
- //Full Timestamp
- Serial.println(String("DateTime::TIMESTAMP_TIME:\t")+time.timestamp(DateTime::TIMESTAMP_TIME));
+//  //Full Timestamp
+//  Serial.println(String("DateTime::TIMESTAMP_TIME:\t")+time.timestamp(DateTime::TIMESTAMP_TIME));
 
- Serial.println("\n");
+  // Serial.print(time.hour());
+  // Serial.print(':');
+  // Serial.print(time.minute(), DEC);
+  // Serial.print(':');
+  // Serial.print(time.second(), DEC);
+  // Serial.println();
+
+ sprintf(buffer, "%02d:%02d:%02d\n", time.hour(), time.minute(), time.second());
 
  //Delay 5s
- delay(5000);
+ delay(1000);
+  display.print(buffer);
+  Serial.print(buffer);
+ display.display();
 }
