@@ -29,7 +29,7 @@ void setup()
 
 void loop()
 {
-  // calibrate();
+  //  calibrate();
   delay(500);
   // calibrate();
   Serial.print("Reading: ");

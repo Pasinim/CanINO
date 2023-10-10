@@ -1,13 +1,13 @@
-// Librerie per il display
+
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include "HX711.h"
 #include "RTClib.h"
+#include <Servo.h>
 /** */  
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
-#define SCREEN_ADDRESS 0x3C
 // Creo un oggetto display. Vengono impostate le grandezze del display,
 //  viene inizializzata la libreria per comunicare tramite il bus I2C
 // L'ultimo parametro specifica l'indirizzo del display oled. Con -1 prova a identificarlo automaticamente 
@@ -33,12 +33,9 @@ int buttonPushCounter = 0;   /** Contatore che tiene traccia del numero di press
 float calibration_factor = 2017.817626; /** Valore di calibrazione per la cella di carico*/ 
 float offset_hx711 = 268839; /** Offset della cella di carico */ 
 HX711 scale; /** Variabile di istanza per utilizzare il modulo HX711*/
-RTC_DS3231 rtc; /** Variabile di istanza per utilizzare il modulo DS3231*/
-DateTime currentTime;
-
 RTC_DS1307 rtc;  /** Variabile di istanza per utilizzare il modulo rtc*/
-
-
+Servo servoDX; /** Variabili per il Servo 1 **/
+Servo servoSX;
 /** Range quantita di cibo erogabile, rispettivamente minimo e massimo */
 const int lower = 150;
 const int upper = 350;
@@ -47,7 +44,7 @@ const int upper = 350;
 Metodo utile per il debugging
 */
 void debug(){
-  char buffer[50];
+  // char buffer[50];
   // Stampo il valore della SetupMode();
   sprintf(buffer, "Valore switch: %s", digitalRead(switchPin) == HIGH ? "SetupMode attiva" : "SetupMode NON attiva");
   Serial.println(buffer);
@@ -61,13 +58,16 @@ void debug(){
 
 /** ------------------------------------------------------------------------------------ */
 void setup() {                                          
-  Serial.begin(9600); // Inizializza la comunicazione seriale a 9600 bps
+  Serial.begin(9600); 
   Wire.begin();
-  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS); 
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); 
   display.clearDisplay();
   display.setTextSize(1);
-  display.display();
   display.setTextColor(SSD1306_WHITE);
+  servoDX.attach(9);
+  servoSX.attach(10);
+  servoDX.write(0);
+  servoSX.write(90);
   pinMode(switchPin, INPUT_PULLUP);
   pinMode(buttonPin, INPUT_PULLUP);
   scale.begin(data_loadCell, clock_loadCell);
@@ -85,9 +85,6 @@ void setup() {
   }
 }
 
-/** Permette di impostare l'orario in cui erogare il cibo tramite il potenziometro.
- Il passo dell'orario è definito dalla variabile `intervallo` (in minuti). 
- */
 void timeSetup(){
   int valorePotenziometro = analogRead(potPin);
   int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); // Mappa il valore da 0 a 47
@@ -95,11 +92,6 @@ void timeSetup(){
   orario[1] = (timeValue % (60/intervallo)) * intervallo;
   sprintf(buffer, "Imposta l'orario di erogazione: %d:%d \n", orario[0], orario[1]);
   DateTime orarioErogazione(rtc.now().year(), rtc.now().month(), rtc.now().day(), orario[0], orario[1], 0);
-
-
-
-
-  
 }
 
 /** Permette di impostare la quantità (g) di peso da erogare tramite il potenziometro.
@@ -111,12 +103,8 @@ void weightSetup(){
   sprintf(buffer, "Imposta la quantita di cibo: %d", quantita);
 }
 
-/**
-  Modalità che permette di modificare la quantità di cibo da erogare
-  e l'orario in cui viene erogato.
-  Premendo il pulsante è possibile alternare tra l'impostazione dell'orario e del peso.
-*/
 void setupMode(){
+  Serial.println("SETUP ATTIVO");
   buttonValue = digitalRead(buttonPin);
   if (buttonValue != lastButtonValue) {
     if (buttonValue == HIGH) {
@@ -132,71 +120,29 @@ void setupMode(){
   }
 }
 
-void checkTime(){
-   DateTime time = rtc.now();
-   Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
-
-
-}
-void checkAddress()
-{
-  byte err, adr;       /*variable error is defined with address of I2C*/
-  int number_of_devices;
-  Serial.println("Scanning.");
-  number_of_devices = 0;
-  for (adr = 1; adr < 127; adr++ )
-  {
-    Wire.beginTransmission(adr);
-    err = Wire.endTransmission();
-
-    if (err == 0)
-    {
-      Serial.print("I2C device at address 0x");
-      if (adr < 16)
-        Serial.print("0");
-      Serial.print(adr, HEX);
-      Serial.println("  !");
-      number_of_devices++;
-    }
-    else if (err == 4)
-    {
-      Serial.print("Unknown error at address 0x");
-      if (adr < 16)
-        Serial.print("0");
-      Serial.println(adr, HEX);
-    }
-  }
-  if (number_of_devices == 0)
-    Serial.println("No I2C devices attached\n");
-  else
-    Serial.println("done\n");
-  delay(5000);             /*wait 5 seconds for the next I2C scan*/
-}
-
-
-void loop() { 
-  // checkTime();
-  // debug();
-  //  DateTime time = rtc.now();
-  //  Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
-   int switchValue = digitalRead(switchPin);
-   display.clearDisplay();
-   display.setCursor(0, 0);
-  if (switchValue == HIGH) setupMode();
-   else {
-    sprintf(buffer, "Quantita cibo erogata: %d\n Orario erogazione: %d:%d\n", quantita, orario[0], orario[1]);
-  }
-  //se metto queste due righe nell'else non stampa correttamente quando entra in setupMode()
-  display.println(buffer);
+void loop(){
+  DateTime time = rtc.now();
+  display.setCursor(0, 0);
+  display.clearDisplay();
+  display.println("Ciao");
   display.display();
-
-  // delay(5000);
-  
-
+  int switchValue = digitalRead(switchPin);
+  Serial.println(switchValue);
+  Serial.println(buttonValue);
+    if (switchValue == HIGH) setupMode();
+   else {
+    sprintf(buffer, "\t\t\t\t\t %02d:%02d:%02d \t\t\t\t\t\n\nVerranno erogati %d grammi di cibo alle\n  %02d:%02d\n", time.hour(), time.minute(), time.second(), quantita, orario[0], orario[1]);
+  }
+  //  if (switchValue == HIGH) {
+  //   display.println(switchValue);
+  //   display.display();
+  //   setupMode();
+  //  }
+  //  else {
+  //   sprintf(buffer, "\t\t\t\t\t %02d:%02d:%02d \t\t\t\t\t\n\nVerranno erogati %d grammi di cibo alle\n  %02d:%02d\n", time.hour(), time.minute(), time.second(), quantita, orario[0], orario[1]);
+  // }
+  // //se metto queste due righe nell'else non stampa correttamente quando entra in setupMode()
+  // Serial.println(buffer);
+  // display.println(buffer);
+  // display.display();
 }
-
-
-// I2C device at address 0x3C  -> Display !
-// I2C device at address 0x57  !
-// I2C device at address 0x5F  !
-// I2C device at address 0x68  -> Clock!
