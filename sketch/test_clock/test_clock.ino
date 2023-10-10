@@ -66,18 +66,7 @@ void loop() {
 //  //Full Timestamp
 //  Serial.println(String("DateTime::TIMESTAMP_FULL:\t")+time.timestamp(DateTime::TIMESTAMP_FULL));
 
-//  //Date Only
-//  Serial.println(String("DateTime::TIMESTAMP_DATE:\t")+time.timestamp(DateTime::TIMESTAMP_DATE));
 
-//  //Full Timestamp
-//  Serial.println(String("DateTime::TIMESTAMP_TIME:\t")+time.timestamp(DateTime::TIMESTAMP_TIME));
-
-  // Serial.print(time.hour());
-  // Serial.print(':');
-  // Serial.print(time.minute(), DEC);
-  // Serial.print(':');
-  // Serial.print(time.second(), DEC);
-  // Serial.println();
 
  sprintf(buffer, "%02d:%02d:%02d\n", time.hour(), time.minute(), time.second());
 
