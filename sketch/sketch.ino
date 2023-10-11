@@ -89,12 +89,8 @@ void timeSetup(){
   orario[0] = timeValue / (60/intervallo);
   orario[1] = (timeValue % (60/intervallo)) * intervallo;
   sprintf(buffer, "Imposta l'orario di erogazione: %02d:%02d \n", orario[0], orario[1]);
-  DateTime orarioErogazione(rtc.now().year(), rtc.now().month(), rtc.now().day(), orario[0], orario[1], 0);
-
-
-
-
-  
+  DateTime orarioErogazione(rtc.now().year(), rtc.now().month(), rtc.now().day(), orario[0], orario[1], 0);  
+  display.print(buffer);
 }
 
 /** Permette di impostare la quantità (g) di peso da erogare tramite il potenziometro.
@@ -104,6 +100,7 @@ void weightSetup(){
   int valorePotenziometro = analogRead(potPin);
   quantita = map(valorePotenziometro, 0, 1023, lower, upper);
   sprintf(buffer, "Imposta la quantita di cibo: %d", quantita);
+  display.print(buffer);
 }
 
 /**
@@ -127,25 +124,27 @@ void setupMode(){
   }
 }
 
-void checkTime(){
+bool checkTime(){
    DateTime time = rtc.now();
-   Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
-
+   Serial.println(time.hour() + ":" + time.minute());
+   if (orario[0] == time.hour() && orario[1] == time.minute()) return true;
+   return false;
 }
 
 void loop() { 
   // checkTime();
   // debug();
-  DateTime time = rtc.now();
+  DateTime currentTime = rtc.now();
    int switchValue = digitalRead(switchPin);
    display.clearDisplay();
    display.setCursor(0, 0);
   if (switchValue == HIGH) setupMode();
-   else {
-      sprintf(buffer, "\t\t\t\t\t %02d:%02d:%02d \t\t\t\t\t\n\nVerranno erogati %d grammi di cibo alle\n %02d:%02d\n", time.hour(), time.minute(), time.second(), quantita, orario[0], orario[1]);
-
+  else{
+    sprintf(buffer, "\t\t\t\t\t %02d:%02d:%02d \t\t\t\t\t\n\nVerranno erogati %d grammi di cibo alle\n %02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second(), quantita, orario[0], orario[1]);
+    display.print(buffer);
   }
-  display.println(buffer);
   display.display();
+  Serial.println(checkTime() ? "true" : "false");
+  // if (checkTime()) eroga();
   
 }
