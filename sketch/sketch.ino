@@ -57,7 +57,7 @@ void debug(){
 
 /** ------------------------------------------------------------------------------------ */
 void setup() {                                          
-  Serial.begin(9600); // Inizializza la comunicazione seriale a 9600 bps
+  Serial.begin(9600); 
   Wire.begin();
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // L'indirizzo I2C del display potrebbe essere diverso (0x3C è l'indirizzo più comune)
   display.clearDisplay();
@@ -126,10 +126,19 @@ void setupMode(){
 
 bool checkTime(){
    DateTime time = rtc.now();
-   Serial.println(time.hour() + ":" + time.minute());
-   if (orario[0] == time.hour() && orario[1] == time.minute()) return true;
-   return false;
+   int ore = time.hour();
+   int minuti = time.minute();
+   Serial.println(ore);
+   Serial.println(minuti);
+  //  if (orario[0] == ore && orario[1] == minuti) return true;
+  if (17 == ore && 28  == minuti) return true;
+   
+  return false;
 }
+
+// void eroga(){
+//   while(quantita) //peso raggiunto
+// }
 
 void loop() { 
   // checkTime();
@@ -144,6 +153,7 @@ void loop() {
     display.print(buffer);
   }
   display.display();
+  checkTime();
   Serial.println(checkTime() ? "true" : "false");
   // if (checkTime()) eroga();
   
