@@ -21,7 +21,7 @@ RTC_DS3231 rtc;
 
 void setup() {
   //  Wire.begin();
-  display.begin(SSD1306_SWITCHCAPVCC, add); // Indirizzo I2C del display OLED
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // Indirizzo I2C del display OLED
   display.clearDisplay(); // Pulisce il display
   display.setTextSize(1); // Imposta la dimensione del testo
   display.setTextColor(SSD1306_WHITE); // Imposta il colore del testo
@@ -61,9 +61,8 @@ void setup() {
 void loop() {
   DateTime time = rtc.now();
 
-  DateTime x = DateTime(2023, 8, 23, 7, 16, 0);
 
-  Serial.println(String("DateTime:ULL:\t") + x.timestamp(DateTime::TIMESTAMP_FULL));
+  Serial.println(String("DateTime:ULL:\t") + time.timestamp(DateTime::TIMESTAMP_FULL));
 
   //Full Timestamp
   Serial.println(String("DateTime::TIMESTAMP_FULL:\t") + time.timestamp(DateTime::TIMESTAMP_FULL));

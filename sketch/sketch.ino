@@ -20,7 +20,6 @@ const int data_loadCell = 6;
 const int clock_loadCell = 7;
 
 /** Definizione delle variabili */
-char buffer[100]; /** buffer per la scrittura sullo schermo OLED */
 int orario[2]; /** orario nel formato hh:mm */
 int quantita; /** quantita di cibo da erogare [g] */ 
 const int intervallo = 10; /** Passo con cui viene incrementato/decrementato l'orario */
@@ -43,7 +42,7 @@ const int upper = 350;
 Metodo utile per il debugging
 */
 void debug(){
-  char buffer[50];
+ char buffer[50];
   // Stampo il valore della SetupMode();
   sprintf(buffer, "Valore switch: %s", digitalRead(switchPin) == HIGH ? "SetupMode attiva" : "SetupMode NON attiva");
   Serial.println(buffer);
@@ -88,13 +87,24 @@ void timeSetup(){
   int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); // Mappa il valore da 0 a 47
   orario[0] = timeValue / (60/intervallo);
   orario[1] = (timeValue % (60/intervallo)) * intervallo;
-  sprintf(buffer, "Imposta l'orario di erogazione: %d:%d \n", orario[0], orario[1]);
+  //La stringa è lunga esattamente 50, se aumento anche solo a 51 il display non stampa
+  char str[50] = "SETUP";
+  display.setCursor(centerDisplay(str), 0);
+  display.println(str);
+  sprintf(str, "ORARIO");
+  display.setCursor(centerDisplay(str), 8);
+  display.println(str);
+  sprintf(str, "\nImposta l'orario di erogazione: %d:%d\n", orario[0], orario[1]);
+
+  /** Definisco la variabile orarioErogazione: yyyy/mm/gg, orario[0]:orario[1]:00;  **/
   DateTime orarioErogazione(rtc.now().year(), rtc.now().month(), rtc.now().day(), orario[0], orario[1], 0);
+  display.println(str);
+  display.display();
+}
 
-
-
-
-  
+/** Restituisce l'offset necessario per centrare la stringa sulle x del display OLED */
+int centerDisplay(char s[]){
+  return (SCREEN_WIDTH - strlen(s) * 6) / 2;
 }
 
 /** Permette di impostare la quantità (g) di peso da erogare tramite il potenziometro.
@@ -103,7 +113,16 @@ void timeSetup(){
 void weightSetup(){
   int valorePotenziometro = analogRead(potPin);
   quantita = map(valorePotenziometro, 0, 1023, lower, upper);
-  sprintf(buffer, "Imposta la quantita di cibo: %d", quantita);
+
+  char str[50] = "SETUP";
+  display.setCursor(centerDisplay(str), 0);
+  display.println(str);
+  sprintf(str, "QUANTITA");
+  display.setCursor(centerDisplay(str), 8);
+  display.println(str);
+  sprintf(str, "\nImposta la quantita di cibo: %d", quantita);
+  display.println(str);
+  display.display();
 }
 
 /**
@@ -133,24 +152,26 @@ void checkTime(){
 
 
 }
-
-
-
 void loop() { 
   // checkTime();
   // debug();
-  //  DateTime time = rtc.now();
+   DateTime currentTime = rtc.now();
   //  Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
    int switchValue = digitalRead(switchPin);
    display.clearDisplay();
    display.setCursor(0, 0);
   if (switchValue == HIGH) setupMode();
    else {
-    sprintf(buffer, "Quantita cibo: %d, orario %d:%d\n", quantita, orario[0], orario[1]);
+    char buffer[50];
+    sprintf(buffer, "%02d:%02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second());
+  display.setCursor(centerDisplay(buffer), 0);
+    display.println(buffer);
+    buffer[0] = 0;
+    sprintf(buffer, "Verranno erogati %dg di cibo alle %d:%d\n", quantita, orario[0], orario[1]);
+    display.println(buffer);
+    display.display();
   }
   //se metto queste due righe nell'else non stampa correttamente quando entra in setupMode()
-  display.println(buffer);
-  display.display();
 
   // delay(5000);
   
