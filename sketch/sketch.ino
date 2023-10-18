@@ -87,14 +87,24 @@ void timeSetup(){
   int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); // Mappa il valore da 0 a 47
   orario[0] = timeValue / (60/intervallo);
   orario[1] = (timeValue % (60/intervallo)) * intervallo;
+  //La stringa è lunga esattamente 50, se aumento anche solo a 51 il display non stampa
   char str[50] = "SETUP";
-  display.setCursor((SCREEN_WIDTH - strlen(str) * 6) / 2, 0);
+  display.setCursor(centerDisplay(str), 0);
+  display.println(str);
+  sprintf(str, "ORARIO");
+  display.setCursor(centerDisplay(str), 8);
   display.println(str);
   sprintf(str, "\nImposta l'orario di erogazione: %d:%d\n", orario[0], orario[1]);
+
   /** Definisco la variabile orarioErogazione: yyyy/mm/gg, orario[0]:orario[1]:00;  **/
   DateTime orarioErogazione(rtc.now().year(), rtc.now().month(), rtc.now().day(), orario[0], orario[1], 0);
   display.println(str);
   display.display();
+}
+
+/** Restituisce l'offset necessario per centrare la stringa sulle x del display OLED */
+int centerDisplay(char s[]){
+  return (SCREEN_WIDTH - strlen(s) * 6) / 2;
 }
 
 /** Permette di impostare la quantità (g) di peso da erogare tramite il potenziometro.
@@ -103,8 +113,12 @@ void timeSetup(){
 void weightSetup(){
   int valorePotenziometro = analogRead(potPin);
   quantita = map(valorePotenziometro, 0, 1023, lower, upper);
+
   char str[50] = "SETUP";
-  display.setCursor((SCREEN_WIDTH - strlen(str) * 6) / 2, 0);
+  display.setCursor(centerDisplay(str), 0);
+  display.println(str);
+  sprintf(str, "QUANTITA");
+  display.setCursor(centerDisplay(str), 8);
   display.println(str);
   sprintf(str, "\nImposta la quantita di cibo: %d", quantita);
   display.println(str);
@@ -150,7 +164,7 @@ void loop() {
    else {
     char buffer[50];
     sprintf(buffer, "%02d:%02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second());
-    display.setCursor((SCREEN_WIDTH - strlen(buffer) * 6) / 2, 0);
+  display.setCursor(centerDisplay(buffer), 0);
     display.println(buffer);
     buffer[0] = 0;
     sprintf(buffer, "Verranno erogati %dg di cibo alle %d:%d\n", quantita, orario[0], orario[1]);
