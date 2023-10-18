@@ -20,7 +20,6 @@ const int data_loadCell = 6;
 const int clock_loadCell = 7;
 
 /** Definizione delle variabili */
-char buffer[100]; /** buffer per la scrittura sullo schermo OLED */
 int orario[2]; /** orario nel formato hh:mm */
 int quantita; /** quantita di cibo da erogare [g] */ 
 const int intervallo = 10; /** Passo con cui viene incrementato/decrementato l'orario */
@@ -43,7 +42,7 @@ const int upper = 350;
 Metodo utile per il debugging
 */
 void debug(){
-  char buffer[100];
+ char buffer[50];
   // Stampo il valore della SetupMode();
   sprintf(buffer, "Valore switch: %s", digitalRead(switchPin) == HIGH ? "SetupMode attiva" : "SetupMode NON attiva");
   Serial.println(buffer);
@@ -57,7 +56,7 @@ void debug(){
 
 /** ------------------------------------------------------------------------------------ */
 void setup() {                                          
-  Serial.begin(9600); 
+  Serial.begin(9600); // Inizializza la comunicazione seriale a 9600 bps
   Wire.begin();
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // L'indirizzo I2C del display potrebbe essere diverso (0x3C è l'indirizzo più comune)
   display.clearDisplay();
@@ -88,9 +87,14 @@ void timeSetup(){
   int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); // Mappa il valore da 0 a 47
   orario[0] = timeValue / (60/intervallo);
   orario[1] = (timeValue % (60/intervallo)) * intervallo;
-  sprintf(buffer, "Imposta l'orario di erogazione: %02d:%02d \n", orario[0], orario[1]);
-  DateTime orarioErogazione(rtc.now().year(), rtc.now().month(), rtc.now().day(), orario[0], orario[1], 0);  
-  display.print(buffer);
+  char str[50] = "SETUP";
+  display.setCursor((SCREEN_WIDTH - strlen(str) * 6) / 2, 0);
+  display.println(str);
+  sprintf(str, "\nImposta l'orario di erogazione: %d:%d\n", orario[0], orario[1]);
+  /** Definisco la variabile orarioErogazione: yyyy/mm/gg, orario[0]:orario[1]:00;  **/
+  DateTime orarioErogazione(rtc.now().year(), rtc.now().month(), rtc.now().day(), orario[0], orario[1], 0);
+  display.println(str);
+  display.display();
 }
 
 /** Permette di impostare la quantità (g) di peso da erogare tramite il potenziometro.
@@ -99,8 +103,12 @@ void timeSetup(){
 void weightSetup(){
   int valorePotenziometro = analogRead(potPin);
   quantita = map(valorePotenziometro, 0, 1023, lower, upper);
-  sprintf(buffer, "Imposta la quantita di cibo: %d", quantita);
-  display.print(buffer);
+  char str[50] = "SETUP";
+  display.setCursor((SCREEN_WIDTH - strlen(str) * 6) / 2, 0);
+  display.println(str);
+  sprintf(str, "\nImposta la quantita di cibo: %d", quantita);
+  display.println(str);
+  display.display();
 }
 
 /**
@@ -124,37 +132,33 @@ void setupMode(){
   }
 }
 
-bool checkTime(){
+void checkTime(){
    DateTime time = rtc.now();
-   int ore = time.hour();
-   int minuti = time.minute();
-   Serial.println(ore);
-   Serial.println(minuti);
-  //  if (orario[0] == ore && orario[1] == minuti) return true;
-  if (17 == ore && 28  == minuti) return true;
-   
-  return false;
+   Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
+
+
 }
-
-// void eroga(){
-//   while(quantita) //peso raggiunto
-// }
-
 void loop() { 
   // checkTime();
   // debug();
-  DateTime currentTime = rtc.now();
+   DateTime currentTime = rtc.now();
+  //  Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
    int switchValue = digitalRead(switchPin);
    display.clearDisplay();
    display.setCursor(0, 0);
   if (switchValue == HIGH) setupMode();
-  else{
-    sprintf(buffer, "\t\t\t\t\t %02d:%02d:%02d \t\t\t\t\t\n\nVerranno erogati %d grammi di cibo alle\n %02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second(), quantita, orario[0], orario[1]);
-    display.print(buffer);
+   else {
+    char buffer[50];
+    sprintf(buffer, "%02d:%02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second());
+    display.setCursor((SCREEN_WIDTH - strlen(buffer) * 6) / 2, 0);
+    display.println(buffer);
+    buffer[0] = 0;
+    sprintf(buffer, "Verranno erogati %dg di cibo alle %d:%d\n", quantita, orario[0], orario[1]);
+    display.println(buffer);
+    display.display();
   }
-  display.display();
-  checkTime();
-  Serial.println(checkTime() ? "true" : "false");
-  // if (checkTime()) eroga();
+  //se metto queste due righe nell'else non stampa correttamente quando entra in setupMode()
+
+  // delay(5000);
   
 }
