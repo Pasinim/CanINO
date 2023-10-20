@@ -5,12 +5,14 @@
 #include <Arduino.h>
 #include <HX711.h>
 #include <RTClib.h>
+#include <Servo.h>
+Servo servoDX;
+Servo servoSX;
 /** */  
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 // Creo un oggetto display. Vengono impostate le grandezze del display,
 //  viene inizializzata la libreria per comunicare tramite il bus I2C
-// L'ultimo parametro specifica l'indirizzo del display oled. Con -1 prova a identificarlo automaticamente 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 /** Inizializzazione dei pin */
@@ -46,6 +48,8 @@ void setup() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
+  servoSX.attach(9);
+  servoDX.attach(10);
   pinMode(switchPin, INPUT_PULLUP);
   pinMode(buttonPin, INPUT_PULLUP);
   scale.begin(data_loadCell, clock_loadCell);
@@ -71,6 +75,7 @@ int centerDisplay(char s[]){
  Il passo dell'orario è definito dalla variabile `intervallo` (in minuti). 
  */
 void timeSetup(){
+  Serial.println("Time setup");
   int valorePotenziometro = analogRead(potPin);
   int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); // Mappa il valore da 0 a 47
   orario[0] = timeValue / (60/intervallo);
@@ -94,6 +99,7 @@ void timeSetup(){
  Il range di valori che assume va da `lower` a `upper`. 
  */
 void weightSetup(){
+  Serial.println("weight setup");
   int valorePotenziometro = analogRead(potPin);
   quantita = map(valorePotenziometro, 0, 1023, lower, upper);
 
@@ -122,11 +128,11 @@ void setupMode(){
     delay(50);
   }
   lastButtonValue = buttonValue;
-  if (buttonPushCounter%2==0){
+  if (buttonPushCounter%2==0)
     timeSetup();
-  }else{
+  else
     weightSetup();
-  }
+  
 }
 
 /**
@@ -139,20 +145,39 @@ bool checkTime(DateTime orarioErogazione){
     return true;
   return false;
 }
+
+void openServo () {
+  servoDX.write(90); 
+  servoSX.write(0); 
+}
+
+void closeServo () {
+  servoSX.write(90); 
+  servoDX.write(0); 
+}
+
 void loop() { 
-   DateTime currentTime = rtc.now();
-   int switchValue = digitalRead(switchPin);
+  Serial.println("Loop");
+  //  DateTime currentTime = rtc.now();
    display.clearDisplay();
    display.setCursor(0, 0);
+  int switchValue = digitalRead(switchPin);
   if (switchValue == HIGH) setupMode();
-   else {
-    char buffer[50];
-    sprintf(buffer, "%02d:%02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second());
-  display.setCursor(centerDisplay(buffer), 0);
-    display.println(buffer);
-    buffer[0] = 0;
-    sprintf(buffer, "Verranno erogati %dg di cibo alle %d:%d\n", quantita, orario[0], orario[1]);
-    display.println(buffer);
-    display.display();
+  else{
+    openServo();
+    delay(1000);
+    closeServo();
+    delay(1000);
   }
+  //  else {
+  //   // char buffer[50];
+  //   // sprintf(buffer, "%02d:%02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second());
+  //   // display.setCursor(centerDisplay(buffer), 0);
+  //   // display.println(buffer);
+  //   // buffer[0] = 0;
+  //   // sprintf(buffer, "Verranno erogati %dg di cibo alle %d:%d\n", quantita, orario[0], orario[1]);
+  //   // display.println(buffer);
+  //   display.display();
+  // }
+display.display();
 }
