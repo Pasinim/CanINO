@@ -23,7 +23,7 @@ const int clock_loadCell = 7;
 /** Definizione delle variabili */
 int orario[2]; /** orario nel formato hh:mm */
 int quantita; /** quantita di cibo da erogare [g] */ 
-const int intervallo = 10; /** Passo con cui viene incrementato/decrementato l'orario */
+const int intervallo = 10; /** Passo con cui viene incrementato/decrementato l'orario (in minuti) */
 
 int buttonValue = 0;      /** Segnale del pulsante */  
 int lastButtonValue = 0; /** Ultimo segnale letto del pulsante*/  
@@ -39,23 +39,6 @@ RTC_DS1307 rtc;  /** Variabile di istanza per utilizzare il modulo rtc*/
 const int lower = 150;
 const int upper = 350;
 
-/** 
-Metodo utile per il debugging
-*/
-void debug(){
- char buffer[50];
-  // Stampo il valore della SetupMode();
-  sprintf(buffer, "Valore switch: %s", digitalRead(switchPin) == HIGH ? "SetupMode attiva" : "SetupMode NON attiva");
-  Serial.println(buffer);
-   if (buttonValue == LOW) {
-      Serial.println("Tasto premuto");
-    } 
-    DateTime time = rtc.now();
-   Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
-  delay(500);
-} 
-
-/** ------------------------------------------------------------------------------------ */
 void setup() {                                          
   Serial.begin(9600); // Inizializza la comunicazione seriale a 9600 bps
   Wire.begin();
@@ -74,7 +57,6 @@ void setup() {
     Serial.flush();
     while (1) delay(10);
   }
-
   if (! rtc.isrunning()) {
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
@@ -99,7 +81,7 @@ void timeSetup(){
   sprintf(str, "ORARIO");
   display.setCursor(centerDisplay(str), 8);
   display.println(str);
-  sprintf(str, "\nImposta l'orario di erogazione: %d:%d\n", orario[0], orario[1]);
+  sprintf(str, "\nImposta l'orario di erogazione: %02d:%02d\n", orario[0], orario[1]);
 
   /** Definisco la variabile orarioErogazione: yyyy/mm/gg, orario[0]:orario[1]:00;  **/
   DateTime orarioErogazione(rtc.now().year(), rtc.now().month(), rtc.now().day(), orario[0], orario[1], 0);
@@ -151,19 +133,14 @@ void setupMode(){
 * Restiutuisce true se l'orario
 **/
 bool checkTime(DateTime orarioErogazione){
-   DateTime time = rtc.now();
-   Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
-   if (time.hour() == orarioErogazione.hour())
-    if (time.minute() == orarioErogazione.minute())
-      return true;
-    return false;
-
+  DateTime time = rtc.now();
+  Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
+  if (time.hour() == orarioErogazione.hour() && time.minute() == orarioErogazione.minute()) 
+    return true;
+  return false;
 }
 void loop() { 
-  // checkTime();
-  // debug();
    DateTime currentTime = rtc.now();
-  //  Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
    int switchValue = digitalRead(switchPin);
    display.clearDisplay();
    display.setCursor(0, 0);
@@ -178,8 +155,4 @@ void loop() {
     display.println(buffer);
     display.display();
   }
-  //se metto queste due righe nell'else non stampa correttamente quando entra in setupMode()
-
-  // delay(5000);
-  
 }
