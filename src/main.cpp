@@ -6,8 +6,7 @@
 #include <HX711.h>
 #include <RTClib.h>
 #include <Servo.h>
-Servo servoDX;
-Servo servoSX;
+
 /** */  
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -34,7 +33,8 @@ int buttonPushCounter = 0;   /** Contatore che tiene traccia del numero di press
 float calibration_factor = 2017.817626; /** Valore di calibrazione per la cella di carico*/ 
 float offset_hx711 = 268839; /** Offset della cella di carico */ 
 HX711 scale; /** Variabile di istanza per utilizzare il modulo HX711*/
-
+Servo servoDX;
+Servo servoSX;
 RTC_DS1307 rtc;  /** Variabile di istanza per utilizzare il modulo rtc*/
 
 /** Range quantita di cibo erogabile, rispettivamente minimo e massimo */
@@ -145,7 +145,6 @@ void setupMode(){
     timeSetup();
   else
     weightSetup();
-  
 }
 
 /**
@@ -195,20 +194,7 @@ void loop() {
     display.println(buffer);
     display.display();
 
-    // openServo();
-    // delay(1000);
-    // closeServo();
-    // delay(1000);
   }
-  //  else {
-  //   // char buffer[50];
-  //   // sprintf(buffer, "%02d:%02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second());
-  //   // display.setCursor(centerDisplay(buffer), 0);
-  //   // display.println(buffer);
-  //   // buffer[0] = 0;
-  //   // sprintf(buffer, "Verranno erogati %dg di cibo alle %d:%d\n", quantita, orario[0], orario[1]);
-  //   // display.println(buffer);
-  //   display.display();
-  // }
+
 display.display();
 }
