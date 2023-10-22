@@ -50,6 +50,8 @@ void setup() {
   display.setTextColor(SSD1306_WHITE);
   servoSX.attach(9);
   servoDX.attach(10);
+  servoSX.write(90); 
+  servoDX.write(0);
   pinMode(switchPin, INPUT_PULLUP);
   pinMode(buttonPin, INPUT_PULLUP);
   scale.begin(data_loadCell, clock_loadCell);
@@ -80,17 +82,23 @@ void timeSetup(){
   int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); // Mappa il valore da 0 a 47
   orario[0] = timeValue / (60/intervallo);
   orario[1] = (timeValue % (60/intervallo)) * intervallo;
-  char str[50] = "SETUP";
+
+/** Stampa su display **/
+  char str[50]; 
+  strcpy(str, "SETUP");
   display.setCursor(centerDisplay(str), 0);
   display.println(str);
-  sprintf(str, "ORARIO");
+  strcpy(str, "ORARIO");
   display.setCursor(centerDisplay(str), 8);
   display.println(str);
-  sprintf(str, "\nImposta l'orario di erogazione: %02d:%02d\n", orario[0], orario[1]);
+  strcpy(str, "Imposta l'orario di erogazione: ");
+  display.setCursor(centerDisplay(str), 18);
+  display.print(str);
+  sprintf(str, "%02d:%02d", orario[0], orario[1]);
+  display.println(str);
 
   /** Definisco la variabile orarioErogazione: yyyy/mm/gg, orario[0]:orario[1]:00;  **/
   DateTime orarioErogazione(rtc.now().year(), rtc.now().month(), rtc.now().day(), orario[0], orario[1], 0);
-  display.println(str);
   display.display();
 }
 
@@ -103,14 +111,18 @@ void weightSetup(){
   int valorePotenziometro = analogRead(potPin);
   quantita = map(valorePotenziometro, 0, 1023, lower, upper);
 
-  char str[50] = "SETUP";
+  char str[50]; 
+  strcpy(str, "SETUP");
   display.setCursor(centerDisplay(str), 0);
   display.println(str);
-  sprintf(str, "QUANTITA");
+  strcpy(str, "QUANTITA'");
   display.setCursor(centerDisplay(str), 8);
   display.println(str);
-  sprintf(str, "\nImposta la quantita di cibo: %d", quantita);
-  display.println(str);
+  strcpy(str, "Imposta la quantita di cibo: ");
+  display.setCursor(centerDisplay(str), 18);
+  display.print(str);
+  sprintf(str, "%d", quantita);
+  display.println(str);p
   display.display();
 }
 
