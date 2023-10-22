@@ -91,7 +91,7 @@ void timeSetup(){
   strcpy(str, "ORARIO");
   display.setCursor(centerDisplay(str), 8);
   display.println(str);
-  strcpy(str, "Imposta l'orario di erogazione: ");
+  strcpy(str, "Imposta l'orario di \nerogazione: ");
   display.setCursor(centerDisplay(str), 18);
   display.print(str);
   sprintf(str, "%02d:%02d", orario[0], orario[1]);
@@ -111,6 +111,7 @@ void weightSetup(){
   int valorePotenziometro = analogRead(potPin);
   quantita = map(valorePotenziometro, 0, 1023, lower, upper);
 
+/** Stampa su display **/
   char str[50]; 
   strcpy(str, "SETUP");
   display.setCursor(centerDisplay(str), 0);
@@ -118,11 +119,11 @@ void weightSetup(){
   strcpy(str, "QUANTITA'");
   display.setCursor(centerDisplay(str), 8);
   display.println(str);
-  strcpy(str, "Imposta la quantita di cibo: ");
+  strcpy(str, "Imposta la quantita\n di cibo: ");
   display.setCursor(centerDisplay(str), 18);
   display.print(str);
   sprintf(str, "%d", quantita);
-  display.println(str);p
+  display.println(str);
   display.display();
 }
 
@@ -176,10 +177,28 @@ void loop() {
   int switchValue = digitalRead(switchPin);
   if (switchValue == HIGH) setupMode();
   else{
-    openServo();
-    delay(1000);
-    closeServo();
-    delay(1000);
+    char buffer[50];
+    sprintf(buffer, " %02d:%02d:%02d\n", rtc.now().hour(), rtc.now().minute(), rtc.now().second());
+    display.setCursor(centerDisplay(buffer), 4);
+    display.println(buffer);
+    strcpy(buffer, "Verranno erogati ");
+    display.setCursor(centerDisplay(buffer), 18);
+    display.println(buffer);
+    sprintf(buffer, "%dg", quantita);
+    display.setCursor(centerDisplay(buffer), 24);
+    display.println(buffer);
+    strcpy(buffer, " di cibo alle ");
+    display.setCursor(centerDisplay(buffer), 32);
+    display.println(buffer);
+    sprintf(buffer, "%02d:%02d", orario[0], orario[1]);
+    display.setCursor(centerDisplay(buffer), 40);
+    display.println(buffer);
+    display.display();
+
+    // openServo();
+    // delay(1000);
+    // closeServo();
+    // delay(1000);
   }
   //  else {
   //   // char buffer[50];
