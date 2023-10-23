@@ -22,10 +22,14 @@ const int buttonPin = 3;
 const int data_loadCell = 6;
 const int clock_loadCell = 7;
 
+/** Range quantita di cibo erogabile, rispettivamente minimo e massimo */
+const int lower = 150;
+const int upper = 350;
+
 /** Definizione delle variabili */
 int orario[2]; /** orario nel formato hh:mm */
-int quantita; /** quantita di cibo da erogare [g] */ 
-const int intervallo = 10; /** Passo con cui viene incrementato/decrementato l'orario (in minuti) */
+int quantita = lower; /** quantita di cibo da erogare [g] */ 
+const int intervallo = 5; /** Passo con cui viene incrementato/decrementato l'orario (in minuti) */
 
 int buttonValue = 0;      /** Segnale del pulsante */  
 int lastButtonValue = 0; /** Ultimo segnale letto del pulsante*/  
@@ -38,9 +42,7 @@ Servo servoDX;
 Servo servoSX;
 RTC_DS1307 rtc;  /** Variabile di istanza per utilizzare il modulo rtc*/
 
-/** Range quantita di cibo erogabile, rispettivamente minimo e massimo */
-const int lower = 150;
-const int upper = 350;
+
 
 void setup() {                                          
   Serial.begin(9600); // Inizializza la comunicazione seriale a 9600 bps
@@ -155,7 +157,8 @@ void setupMode(){
 bool checkTime(int o[]){ //da togliere e da confrontare con int orario[]
   DateTime time = rtc.now();
   // Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
-  if (time.hour() == o[0] && time.minute() == o[1]) 
+  // if (time.hour() == o[0] && time.minute() == o[1]) 
+  if (time.hour() == orario[0] && time.minute() == orario[1]) 
     return true;
   return false;
 }
@@ -171,8 +174,7 @@ void closeServo () {
 }
 
 void eroga(){
-  while (scale.get_units() < quantita){
-    Serial.println(scale.get_units());
+  while (scale.get_units(1) < quantita){
     openServo();
     delay(100);
   }
@@ -190,14 +192,14 @@ int availableMemory() {
 
 void loop() { 
   // Serial.println("Loop");
-  //  DateTime currentTime = rtc.now();
+   DateTime currentTime = rtc.now();
    display.clearDisplay();
    display.setCursor(0, 0);
   int switchValue = digitalRead(switchPin);
   if (switchValue == HIGH) setupMode();
   else{
     char buffer[50];
-    sprintf(buffer, " %02d:%02d:%02d\n", rtc.now().hour(), rtc.now().minute(), rtc.now().second());
+    sprintf(buffer, " %02d:%02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second());
     display.setCursor(centerDisplay(buffer), 4);
     display.println(buffer);
     strcpy(buffer, "Verranno erogati ");
@@ -215,17 +217,10 @@ void loop() {
     display.display();
   }
 
-int o[2] = {14, 00};
-int peso = scale.get_units(10);
-// Serial.println(availableMemory());
-// availableMemory();
-Serial.println(peso);
-// if (checkTime(o)){
-//   Serial.print("check: ");
-//   Serial.println(checkTime(o));
-//   eroga();
-// }
+int o[2] = {15, 40};
 
 
-delay(100);
+if (checkTime(o))
+  eroga();
+
 }
