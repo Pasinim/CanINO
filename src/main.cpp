@@ -10,6 +10,7 @@
 /** */  
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
+
 // Creo un oggetto display. Vengono impostate le grandezze del display,
 //  viene inizializzata la libreria per comunicare tramite il bus I2C
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
@@ -57,6 +58,7 @@ void setup() {
   scale.begin(data_loadCell, clock_loadCell);
   scale.set_offset(offset_hx711); 
   scale.set_scale(calibration_factor);
+  scale.tare();
 
   if (! rtc.begin()) {
     Serial.println("Couldn't find RTC");
@@ -148,12 +150,12 @@ void setupMode(){
 }
 
 /**
-* Restiutuisce true se l'orario
+* Restiutuisce true se l'orario impostato corrisponde all'orario attuale
 **/
-bool checkTime(DateTime orarioErogazione){
+bool checkTime(int o[]){ //da togliere e da confrontare con int orario[]
   DateTime time = rtc.now();
-  Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
-  if (time.hour() == orarioErogazione.hour() && time.minute() == orarioErogazione.minute()) 
+  // Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
+  if (time.hour() == o[0] && time.minute() == o[1]) 
     return true;
   return false;
 }
@@ -168,8 +170,26 @@ void closeServo () {
   servoDX.write(0); 
 }
 
+void eroga(){
+  while (scale.get_units() < quantita){
+    Serial.println(scale.get_units());
+    openServo();
+    delay(100);
+  }
+  closeServo();
+}
+
+int availableMemory() {
+    // Use 1024 with ATmega168
+    int size = 2048;
+    byte *buf;
+    while ((buf = (byte *) malloc(--size)) == NULL);
+        free(buf);
+    return size;
+}
+
 void loop() { 
-  Serial.println("Loop");
+  // Serial.println("Loop");
   //  DateTime currentTime = rtc.now();
    display.clearDisplay();
    display.setCursor(0, 0);
@@ -193,8 +213,19 @@ void loop() {
     display.setCursor(centerDisplay(buffer), 40);
     display.println(buffer);
     display.display();
-
   }
 
-display.display();
+int o[2] = {14, 00};
+int peso = scale.get_units(10);
+// Serial.println(availableMemory());
+// availableMemory();
+Serial.println(peso);
+// if (checkTime(o)){
+//   Serial.print("check: ");
+//   Serial.println(checkTime(o));
+//   eroga();
+// }
+
+
+delay(100);
 }
