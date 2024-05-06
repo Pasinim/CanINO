@@ -5,7 +5,7 @@
 #include <Arduino.h>
 #include <HX711.h>
 #include <RTClib.h>
-#include <Servo.h>
+// #include <Servo.h>
 
 /** */  
 #define SCREEN_WIDTH 128
@@ -38,8 +38,7 @@ int buttonPushCounter = 0;   /** Contatore che tiene traccia del numero di press
 float calibration_factor = 2017.817626; /** Valore di calibrazione per la cella di carico*/ 
 float offset_hx711 = 268839; /** Offset della cella di carico */ 
 HX711 scale; /** Variabile di istanza per utilizzare il modulo HX711*/
-Servo servoDX;
-Servo servoSX;
+
 RTC_DS1307 rtc;  /** Variabile di istanza per utilizzare il modulo rtc*/
 
 
@@ -51,10 +50,7 @@ void setup() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
-  servoSX.attach(9);
-  servoDX.attach(10);
-  servoSX.write(90); 
-  servoDX.write(0);
+
   pinMode(switchPin, INPUT_PULLUP);
   pinMode(buttonPin, INPUT_PULLUP);
   scale.begin(data_loadCell, clock_loadCell);
@@ -163,22 +159,14 @@ bool checkTime(int o[]){ //da togliere e da confrontare con int orario[]
   return false;
 }
 
-void openServo () {
-  servoDX.write(90); 
-  servoSX.write(0); 
-}
 
-void closeServo () {
-  servoSX.write(90); 
-  servoDX.write(0); 
-}
 
 void eroga(){
   while (scale.get_units(1) < quantita){
-    openServo();
+    // openServo();
     delay(100);
   }
-  closeServo();
+  // closeServo();
 }
 
 int availableMemory() {
