@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include <HX711.h>
 #include <RTClib.h>
+#include <Stepper.h>
 // #include <Servo.h>
 
 /** */  
@@ -14,6 +15,11 @@
 // Creo un oggetto display. Vengono impostate le grandezze del display,
 //  viene inizializzata la libreria per comunicare tramite il bus I2C
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+// Step necessari per effettuare una rotazione completa del motore
+const int stepsPerRevolution = 2048;
+/** I pin del motore devono essere collegati rispettivamente ai pin IN1-IN3-IN2-IN4 */
+Stepper myStepper = Stepper(stepsPerRevolution, 8, 10, 9, 11);
 
 /** Inizializzazione dei pin */
 const int potPin = A0; 
@@ -25,6 +31,7 @@ const int clock_loadCell = 7;
 /** Range quantita di cibo erogabile, rispettivamente minimo e massimo */
 const int lower = 150;
 const int upper = 350;
+
 
 /** Definizione delle variabili */
 int orario[2]; /** orario nel formato hh:mm */
@@ -162,15 +169,16 @@ bool checkTime(int o[]){ //da togliere e da confrontare con int orario[]
 
 
 void eroga(){
+  Serial.println("\t Eroga");
   while (scale.get_units(1) < quantita){
-    // openServo();
+   	myStepper.setSpeed(15);
+	  myStepper.step(stepsPerRevolution);
     delay(100);
   }
   // closeServo();
 }
 
 int availableMemory() {
-    // Use 1024 with ATmega168
     int size = 2048;
     byte *buf;
     while ((buf = (byte *) malloc(--size)) == NULL);
@@ -178,37 +186,89 @@ int availableMemory() {
     return size;
 }
 
+// void printInfo(DateTime currentTime){
+//   /********************** PRINT *******************************/
+//     char buffer[50];
+//     sprintf(buffer, " %02d:%02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second());
+//     display.setCursor(centerDisplay(buffer), 4);
+//     display.println(buffer);
+//     strcpy(buffer, "Verranno erogati ");
+//     display.setCursor(centerDisplay(buffer), 18);
+//     display.println(buffer);
+//     sprintf(buffer, "%dg", quantita);
+//     display.setCursor(centerDisplay(buffer), 24);
+//     display.println(buffer);
+//     strcpy(buffer, " di cibo alle ");
+//     display.setCursor(centerDisplay(buffer), 32);
+//     display.println(buffer);
+//     sprintf(buffer, "%02d:%02d", orario[0], orario[1]);
+//     display.setCursor(centerDisplay(buffer), 40);
+//     display.println(buffer);
+//     display.display();
+  
+
+// }
+
+void printInfo(DateTime currentTime){
+    char buffer[50];
+/** Conversione dell'orario in stringhe*/
+    char hourStr[3];
+    char minuteStr[3];
+    char secondStr[3];
+    itoa(currentTime.hour(), hourStr, 10);
+    itoa(currentTime.minute(), minuteStr, 10);
+    itoa(currentTime.second(), secondStr, 10);
+
+  /** Costruzione e stampa della stringa dell'orario */
+    strcpy(buffer, " ");
+    strcat(buffer, hourStr);
+    strcat(buffer, ":");
+    strcat(buffer, minuteStr);
+    strcat(buffer, ":");
+    strcat(buffer, secondStr);
+    strcat(buffer, "\n");
+    display.setCursor(centerDisplay(buffer), 4);
+    display.println(buffer);
+
+    /** Stampa la quantità di cibo erogta all'orario impostato*/
+    strcpy(buffer, "Verranno erogati ");
+    display.setCursor(centerDisplay(buffer), 18);
+    display.println(buffer);
+    itoa(quantita, buffer, 10);
+    strcat(buffer, "g");
+    display.setCursor(centerDisplay(buffer), 24);
+    display.println(buffer);
+    strcpy(buffer, " di cibo alle ");
+    strcat(buffer, hourStr);
+    strcat(buffer, ":");
+    strcat(buffer, minuteStr);
+    display.setCursor(centerDisplay(buffer), 32);
+    display.println(buffer);
+
+    display.display();
+  
+}
+
+
+
 void loop() { 
-  // Serial.println("Loop");
    DateTime currentTime = rtc.now();
    display.clearDisplay();
    display.setCursor(0, 0);
   int switchValue = digitalRead(switchPin);
+   Serial.print("peso attuale:"); 
+  Serial.println(scale.get_units(1));
   if (switchValue == HIGH) setupMode();
   else{
-    char buffer[50];
-    sprintf(buffer, " %02d:%02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second());
-    display.setCursor(centerDisplay(buffer), 4);
-    display.println(buffer);
-    strcpy(buffer, "Verranno erogati ");
-    display.setCursor(centerDisplay(buffer), 18);
-    display.println(buffer);
-    sprintf(buffer, "%dg", quantita);
-    display.setCursor(centerDisplay(buffer), 24);
-    display.println(buffer);
-    strcpy(buffer, " di cibo alle ");
-    display.setCursor(centerDisplay(buffer), 32);
-    display.println(buffer);
-    sprintf(buffer, "%02d:%02d", orario[0], orario[1]);
-    display.setCursor(centerDisplay(buffer), 40);
-    display.println(buffer);
-    display.display();
+    printInfo(currentTime);
+  // Se aggiungo codice si rompe 
+  Serial.println("end");
+ 
   }
-
-int o[2] = {15, 40};
-
-
-if (checkTime(o))
-  eroga();
+  // int o[2] = {16, 54};
+  // Serial.println(checkTime(o));
+  // if (checkTime(o)){
+  //   eroga();
+  // }
 
 }
