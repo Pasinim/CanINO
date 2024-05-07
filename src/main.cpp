@@ -29,8 +29,8 @@ const int data_loadCell = 6;
 const int clock_loadCell = 7;
 
 /** Range quantita di cibo erogabile, rispettivamente minimo e massimo */
-const int lower = 150;
-const int upper = 350;
+const int lower = 50;
+const int upper = 200;
 
 
 /** Definizione delle variabili */
@@ -89,7 +89,7 @@ int centerDisplay(char s[]){
 void timeSetup(){
   Serial.println("Time setup");
   int valorePotenziometro = analogRead(potPin);
-  int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); // Mappa il valore da 0 a 47
+  int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); 
   orario[0] = timeValue / (60/intervallo);
   orario[1] = (timeValue % (60/intervallo)) * intervallo;
 
@@ -176,7 +176,7 @@ bool checkTime(){ //da togliere e da confrontare con int orario[]
  * 
  */
 void eroga(){
-  Serial.println("\t Eroga");
+  // Serial.println("\t Eroga");
   while (scale.get_units(1) < quantita){
     Serial.print("peso attuale:"); 
     Serial.println(scale.get_units(1));
@@ -186,6 +186,8 @@ void eroga(){
 	  myStepper.step(-stepsPerRevolution/3);
     delay(100);
   }
+  // Aggiungendo questo print non funziona nulla??
+  // Serial.println("\tErogazione completata");
   return;
 }
 
@@ -264,7 +266,6 @@ void loop() {
   if (switchValue == HIGH) setupMode();
   else
     printInfo(currentTime);
-  
   if (checkTime())
     eroga();
   
