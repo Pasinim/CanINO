@@ -42,9 +42,11 @@ int buttonValue = 0;      /** Segnale del pulsante */
 int lastButtonValue = 0; /** Ultimo segnale letto del pulsante*/  
 int buttonPushCounter = 0;   /** Contatore che tiene traccia del numero di pressioni del tasto*/   
 
-float calibration_factor = 2017.817626; /** Valore di calibrazione per la cella di carico*/ 
-float offset_hx711 = 268839; /** Offset della cella di carico */ 
+
+float calibration_factor = 1984.322021; /** Valore di calibrazione per la cella di carico*/ 
+float offset_hx711 = 2321710; /** Offset della cella di carico */ 
 HX711 scale; /** Variabile di istanza per utilizzare il modulo HX711*/
+
 
 RTC_DS1307 rtc;  /** Variabile di istanza per utilizzare il modulo rtc*/
 
@@ -63,6 +65,7 @@ void setup() {
   scale.begin(data_loadCell, clock_loadCell);
   scale.set_offset(offset_hx711); 
   scale.set_scale(calibration_factor);
+  /** Imposta la tara*/
   scale.tare();
 
   if (! rtc.begin()) {
@@ -157,7 +160,7 @@ void setupMode(){
 /**
 * Restiutuisce true se l'orario impostato corrisponde all'orario attuale
 **/
-bool checkTime(int o[]){ //da togliere e da confrontare con int orario[]
+bool checkTime(){ //da togliere e da confrontare con int orario[]
   DateTime time = rtc.now();
   // Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
   // if (time.hour() == o[0] && time.minute() == o[1]) 
@@ -166,26 +169,38 @@ bool checkTime(int o[]){ //da togliere e da confrontare con int orario[]
   return false;
 }
 
-
-
+/**
+ * Eroga il cibo fino a quando non si raggiunge la quantità impostata.
+ * Il motore esegue un giro completo in senso orario, poi metà giro in senso orario.
+ * Questo viene eseguito per evitare che il cibo rimanga incastrato nel tubo di erogazione.
+ * 
+ */
 void eroga(){
   Serial.println("\t Eroga");
   while (scale.get_units(1) < quantita){
+       Serial.print("peso attuale:"); 
+  Serial.println(scale.get_units(1));
+
    	myStepper.setSpeed(15);
 	  myStepper.step(stepsPerRevolution);
+    // delay(100);
+    myStepper.setSpeed(15);
+	  myStepper.step(-stepsPerRevolution/3);
     delay(100);
   }
   // closeServo();
 }
 
-int availableMemory() {
-    int size = 2048;
-    byte *buf;
-    while ((buf = (byte *) malloc(--size)) == NULL);
-        free(buf);
-    return size;
-}
+// int availableMemory() {
+//     int size = 2048;
+//     byte *buf;
+//     while ((buf = (byte *) malloc(--size)) == NULL);
+//         free(buf);
+//     return size;
+// }
 
+
+// COn questa versione crasha lo sketch quando entra in setupMode
 // void printInfo(DateTime currentTime){
 //   /********************** PRINT *******************************/
 //     char buffer[50];
@@ -246,7 +261,6 @@ void printInfo(DateTime currentTime){
     display.println(buffer);
 
     display.display();
-  
 }
 
 
@@ -256,19 +270,22 @@ void loop() {
    display.clearDisplay();
    display.setCursor(0, 0);
   int switchValue = digitalRead(switchPin);
+  if (switchValue == HIGH) setupMode();
+  else
+    printInfo(currentTime);
+  
    Serial.print("peso attuale:"); 
   Serial.println(scale.get_units(1));
-  if (switchValue == HIGH) setupMode();
-  else{
-    printInfo(currentTime);
-  // Se aggiungo codice si rompe 
-  Serial.println("end");
- 
+
+
+Serial.print(orario[0]);
+Serial.print(":");
+Serial.println(orario[1]);
+  eroga();
+  // int o[2] = {currentTime.hour(), 42};
+  Serial.println(checkTime());
+  if (checkTime()){
+    eroga();
   }
-  // int o[2] = {16, 54};
-  // Serial.println(checkTime(o));
-  // if (checkTime(o)){
-  //   eroga();
-  // }
 
 }
