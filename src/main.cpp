@@ -29,8 +29,8 @@ const int data_loadCell = 6;
 const int clock_loadCell = 7;
 
 /** Range quantita di cibo erogabile, rispettivamente minimo e massimo */
-const int lower = 150;
-const int upper = 350;
+const int lower = 50;
+const int upper = 200;
 
 
 /** Definizione delle variabili */
@@ -42,9 +42,11 @@ int buttonValue = 0;      /** Segnale del pulsante */
 int lastButtonValue = 0; /** Ultimo segnale letto del pulsante*/  
 int buttonPushCounter = 0;   /** Contatore che tiene traccia del numero di pressioni del tasto*/   
 
-float calibration_factor = 2017.817626; /** Valore di calibrazione per la cella di carico*/ 
-float offset_hx711 = 268839; /** Offset della cella di carico */ 
+
+float calibration_factor = 1984.322021; /** Valore di calibrazione per la cella di carico*/ 
+float offset_hx711 = 2321710; /** Offset della cella di carico */ 
 HX711 scale; /** Variabile di istanza per utilizzare il modulo HX711*/
+
 
 RTC_DS1307 rtc;  /** Variabile di istanza per utilizzare il modulo rtc*/
 
@@ -63,6 +65,7 @@ void setup() {
   scale.begin(data_loadCell, clock_loadCell);
   scale.set_offset(offset_hx711); 
   scale.set_scale(calibration_factor);
+  /** Imposta la tara*/
   scale.tare();
 
   if (! rtc.begin()) {
@@ -86,7 +89,7 @@ int centerDisplay(char s[]){
 void timeSetup(){
   Serial.println("Time setup");
   int valorePotenziometro = analogRead(potPin);
-  int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); // Mappa il valore da 0 a 47
+  int timeValue = map(valorePotenziometro, 0, 1023, 0, 60/intervallo*24); 
   orario[0] = timeValue / (60/intervallo);
   orario[1] = (timeValue % (60/intervallo)) * intervallo;
 
@@ -157,7 +160,7 @@ void setupMode(){
 /**
 * Restiutuisce true se l'orario impostato corrisponde all'orario attuale
 **/
-bool checkTime(int o[]){ //da togliere e da confrontare con int orario[]
+bool checkTime(){ //da togliere e da confrontare con int orario[]
   DateTime time = rtc.now();
   // Serial.println(time.timestamp(DateTime::TIMESTAMP_TIME));
   // if (time.hour() == o[0] && time.minute() == o[1]) 
@@ -166,49 +169,32 @@ bool checkTime(int o[]){ //da togliere e da confrontare con int orario[]
   return false;
 }
 
-
-
+/**
+ * Eroga il cibo fino a quando non si raggiunge la quantità impostata.
+ * Il motore esegue un giro completo in senso orario, poi metà giro in senso orario.
+ * Questo viene eseguito per evitare che il cibo rimanga incastrato nel tubo di erogazione.
+ * 
+ */
 void eroga(){
-  Serial.println("\t Eroga");
+  // Serial.println("\t Eroga");
   while (scale.get_units(1) < quantita){
+    Serial.print("peso attuale:"); 
+    Serial.println(scale.get_units(1));
    	myStepper.setSpeed(15);
 	  myStepper.step(stepsPerRevolution);
+    myStepper.setSpeed(15);
+	  myStepper.step(-stepsPerRevolution/3);
     delay(100);
   }
-  // closeServo();
+  // Aggiungendo questo print non funziona nulla??
+  // Serial.println("\tErogazione completata");
+  return;
 }
 
-int availableMemory() {
-    int size = 2048;
-    byte *buf;
-    while ((buf = (byte *) malloc(--size)) == NULL);
-        free(buf);
-    return size;
-}
-
-// void printInfo(DateTime currentTime){
-//   /********************** PRINT *******************************/
-//     char buffer[50];
-//     sprintf(buffer, " %02d:%02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second());
-//     display.setCursor(centerDisplay(buffer), 4);
-//     display.println(buffer);
-//     strcpy(buffer, "Verranno erogati ");
-//     display.setCursor(centerDisplay(buffer), 18);
-//     display.println(buffer);
-//     sprintf(buffer, "%dg", quantita);
-//     display.setCursor(centerDisplay(buffer), 24);
-//     display.println(buffer);
-//     strcpy(buffer, " di cibo alle ");
-//     display.setCursor(centerDisplay(buffer), 32);
-//     display.println(buffer);
-//     sprintf(buffer, "%02d:%02d", orario[0], orario[1]);
-//     display.setCursor(centerDisplay(buffer), 40);
-//     display.println(buffer);
-//     display.display();
-  
-
-// }
-
+/**
+ * Stampa sul display l'orario attuale e la quantità di cibo erogata.
+ * @param currentTime orario corrente
+ */
 void printInfo(DateTime currentTime){
     char buffer[50];
 /** Conversione dell'orario in stringhe*/
@@ -239,36 +225,48 @@ void printInfo(DateTime currentTime){
     display.setCursor(centerDisplay(buffer), 24);
     display.println(buffer);
     strcpy(buffer, " di cibo alle ");
-    strcat(buffer, hourStr);
+    strcat(buffer, itoa(orario[0], hourStr, 10));
     strcat(buffer, ":");
-    strcat(buffer, minuteStr);
+    strcat(buffer, itoa(orario[1], minuteStr, 10));
     display.setCursor(centerDisplay(buffer), 32);
     display.println(buffer);
 
     display.display();
-  
 }
 
-
+/**
+ * Metodo di debug per stampare sul monitor seriale le variabili di stato.
+ */
+void debug() {
+  Serial.println("********** DEBUG **********");
+  Serial.print("orario: ");
+  Serial.print(orario[0]);
+  Serial.print(":");
+  Serial.println(orario[1]);
+  Serial.print("quantita: ");
+  Serial.println(quantita);
+  Serial.print("buttonPushCounter: ");
+  Serial.println(buttonPushCounter);
+Serial.print("ButtonValue: ");
+  Serial.println(buttonValue);
+  Serial.print("switchValue: ");
+  Serial.println(digitalRead(switchPin));
+  Serial.print("scale.get_units(1): ");
+  Serial.println(scale.get_units(1));
+  Serial.println("***************************");
+  delay(500);
+}
 
 void loop() { 
+  // debug();
    DateTime currentTime = rtc.now();
    display.clearDisplay();
    display.setCursor(0, 0);
   int switchValue = digitalRead(switchPin);
-   Serial.print("peso attuale:"); 
-  Serial.println(scale.get_units(1));
   if (switchValue == HIGH) setupMode();
-  else{
+  else
     printInfo(currentTime);
-  // Se aggiungo codice si rompe 
-  Serial.println("end");
- 
-  }
-  // int o[2] = {16, 54};
-  // Serial.println(checkTime(o));
-  // if (checkTime(o)){
-  //   eroga();
-  // }
-
+  if (checkTime())
+    eroga();
+  
 }
