@@ -232,6 +232,9 @@ void printInfo(DateTime currentTime){
     display.display();
 }
 
+/**
+ * Metodo di debug per stampare sul monitor seriale le variabili di stato.
+ */
 void debug() {
   Serial.println("********** DEBUG **********");
   Serial.print("orario: ");
@@ -258,7 +261,6 @@ void loop() {
    display.clearDisplay();
    display.setCursor(0, 0);
   int switchValue = digitalRead(switchPin);
-  // Serial.println(availableMemory());
   if (switchValue == HIGH) setupMode();
   else
     printInfo(currentTime);
@@ -266,16 +268,4 @@ void loop() {
   if (checkTime())
     eroga();
   
-  
-  //  Serial.print("peso attuale:"); 
-  // Serial.println(scale.get_units(1));
-
-
-// Serial.print(orario[0]);
-// Serial.print(":");
-// Serial.println(orario[1]);
-  // eroga();
-  // int o[2] = {currentTime.hour(), 42};
-  // Serial.println(checkTime());
-
 }
