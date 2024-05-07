@@ -178,52 +178,21 @@ bool checkTime(){ //da togliere e da confrontare con int orario[]
 void eroga(){
   Serial.println("\t Eroga");
   while (scale.get_units(1) < quantita){
-       Serial.print("peso attuale:"); 
-  Serial.println(scale.get_units(1));
-
+    Serial.print("peso attuale:"); 
+    Serial.println(scale.get_units(1));
    	myStepper.setSpeed(15);
 	  myStepper.step(stepsPerRevolution);
-    // delay(100);
     myStepper.setSpeed(15);
 	  myStepper.step(-stepsPerRevolution/3);
     delay(100);
   }
-  // closeServo();
+  return;
 }
 
-// int availableMemory() {
-//     int size = 2048;
-//     byte *buf;
-//     while ((buf = (byte *) malloc(--size)) == NULL);
-//         free(buf);
-//     return size;
-// }
-
-
-// COn questa versione crasha lo sketch quando entra in setupMode
-// void printInfo(DateTime currentTime){
-//   /********************** PRINT *******************************/
-//     char buffer[50];
-//     sprintf(buffer, " %02d:%02d:%02d\n", currentTime.hour(), currentTime.minute(), currentTime.second());
-//     display.setCursor(centerDisplay(buffer), 4);
-//     display.println(buffer);
-//     strcpy(buffer, "Verranno erogati ");
-//     display.setCursor(centerDisplay(buffer), 18);
-//     display.println(buffer);
-//     sprintf(buffer, "%dg", quantita);
-//     display.setCursor(centerDisplay(buffer), 24);
-//     display.println(buffer);
-//     strcpy(buffer, " di cibo alle ");
-//     display.setCursor(centerDisplay(buffer), 32);
-//     display.println(buffer);
-//     sprintf(buffer, "%02d:%02d", orario[0], orario[1]);
-//     display.setCursor(centerDisplay(buffer), 40);
-//     display.println(buffer);
-//     display.display();
-  
-
-// }
-
+/**
+ * Stampa sul display l'orario attuale e la quantità di cibo erogata.
+ * @param currentTime orario corrente
+ */
 void printInfo(DateTime currentTime){
     char buffer[50];
 /** Conversione dell'orario in stringhe*/
@@ -254,38 +223,59 @@ void printInfo(DateTime currentTime){
     display.setCursor(centerDisplay(buffer), 24);
     display.println(buffer);
     strcpy(buffer, " di cibo alle ");
-    strcat(buffer, hourStr);
+    strcat(buffer, itoa(orario[0], hourStr, 10));
     strcat(buffer, ":");
-    strcat(buffer, minuteStr);
+    strcat(buffer, itoa(orario[1], minuteStr, 10));
     display.setCursor(centerDisplay(buffer), 32);
     display.println(buffer);
 
     display.display();
 }
 
-
+void debug() {
+  Serial.println("********** DEBUG **********");
+  Serial.print("orario: ");
+  Serial.print(orario[0]);
+  Serial.print(":");
+  Serial.println(orario[1]);
+  Serial.print("quantita: ");
+  Serial.println(quantita);
+  Serial.print("buttonPushCounter: ");
+  Serial.println(buttonPushCounter);
+Serial.print("ButtonValue: ");
+  Serial.println(buttonValue);
+  Serial.print("switchValue: ");
+  Serial.println(digitalRead(switchPin));
+  Serial.print("scale.get_units(1): ");
+  Serial.println(scale.get_units(1));
+  Serial.println("***************************");
+  delay(500);
+}
 
 void loop() { 
+  // debug();
    DateTime currentTime = rtc.now();
    display.clearDisplay();
    display.setCursor(0, 0);
   int switchValue = digitalRead(switchPin);
+  // Serial.println(availableMemory());
   if (switchValue == HIGH) setupMode();
   else
     printInfo(currentTime);
   
-   Serial.print("peso attuale:"); 
-  Serial.println(scale.get_units(1));
-
-
-Serial.print(orario[0]);
-Serial.print(":");
-Serial.println(orario[1]);
-  eroga();
-  // int o[2] = {currentTime.hour(), 42};
-  Serial.println(checkTime());
-  if (checkTime()){
+  if (checkTime())
     eroga();
-  }
+  
+  
+  //  Serial.print("peso attuale:"); 
+  // Serial.println(scale.get_units(1));
+
+
+// Serial.print(orario[0]);
+// Serial.print(":");
+// Serial.println(orario[1]);
+  // eroga();
+  // int o[2] = {currentTime.hour(), 42};
+  // Serial.println(checkTime());
 
 }
