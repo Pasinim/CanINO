@@ -4,7 +4,7 @@ Il seguente README è ancoira in fase preliminare e sarà soggetto a modifiche o
 
 ## Introduzione
 
-Il progetto `CanINO` è un dosatore automatico per animali, progettato per fornire cibo e acqua agli animali domestici in modo automatico, seguendo quantità e orari prestabiliti. 
+Il progetto `CanINO` è un dosatore automatico per animali, progettato per fornire cibo e acqua agli animali domestici in modo automatico, seguendo quantità e orari prestabiliti.
 
 ## Sensori ed attuatori utilizzati
 
@@ -27,24 +27,37 @@ Le funzionalità offerte sono le seguenti:
 2. Programmazione dell'orario: È possibile impostare l'ora in cui erogare il cibo. Il dosatore erogherà automaticamente il cibo alla stessa ora ogni giorno,
 3. Riempimento dell'Acqua: La pompa dell'acqua riempirà la ciotola dell'acqua alla pressione dell'apposito tasto,
 4. Display delle Informazioni: Il display OLED permette di visualizzare la quantità di cibo (g) impostata e l'orario dell'erogazione,
-5. Misurazione del Peso: La cella di carico misura il peso del cibo, disattivando i servo motori quando  il peso raggiunto equivale a quello impostato.
+5. Misurazione del Peso: La cella di carico misura il peso del cibo, disattivando i servo motori quando la quantità erogata corrisponde a quella impostata.
 
 ## Schema dei Collegamenti
 
 Segue uno schema dei collegamenti tra i componenti utilizzati nel progetto:
 
 ```
-//TODO 
+//TODO
 ```
 
 ## Funzionamento
 
 Il progetto "CanINO" funziona nel seguente modo:
 
-1. L'utente regola la quantità di cibo desiderata tramite il potenziometro.
-2. L'utente imposta l'ora desiderata per l'erogazione del cibo tramite il pulsante e il potenziometro.
-3. Quando arriva l'ora impostata, il dosatore attiva i servo motori per erogare la quantità di cibo impostata.
-4. La cella di carico misura il peso del cibo nel contenitore e disattiva i servo motori al raggiungimento del peso
+1. L'utente sceglie se avviare la modalità "Setup" o "Idle" tramite un interruttore
+
+2. 1 _Modalità Setup_
+
+   - L'utente regola la quantità di cibo desiderata tramite il potenziometro.
+
+   - Premento il pulsante l'utente passa all'impostazione dell'ora regolabile tramite il potenziometro.
+
+3. _Modalità Idle_
+
+   - Quando l'orario corrente corrisponde con l'orario di erogazione impostato il dosatore attiva i servo motori per erogare il cibo,
+
+   - La cella di carico miusura il peso del cibo e disattiva i servo motori al raggiungimento del peso
+
+4. Quando arriva l'ora impostata, il dosatore attiva i servo motori per erogare la quantità di cibo impostata.
+
+5. La cella di carico misura il peso del cibo nel contenitore e disattiva i servo motori al raggiungimento del peso
 
 ---
 
@@ -52,7 +65,8 @@ Il progetto "CanINO" funziona nel seguente modo:
 
 Il HX711 è un convertitore analogico-digitale (ADC) con una risoluzione fissa di 24 bit e prima di utilizzarla per misurare il peso è necessario effettuare una calibrazione per ottenere letture accurate e coerenti dalla cella di carico collegata.
 
-La calibrazione è stata eseguita con il seguente codice, i valori ottenuti sono stati salvati nelle variabili `offset_hx711` e `calibration_factor`.  
+La calibrazione è stata eseguita con il seguente [codice ]
+(https://github.com/RobTillaart/HX711), i valori ottenuti sono stati salvati nelle variabili `offset_hx711` e `calibration_factor`.
 
 ```c
 void calibrate()
@@ -111,4 +125,4 @@ void calibrate()
 }
 ```
 
-Link https://github.com/RobTillaart/HX711 calibrazione cella di carico.
+ per la calibrazione della cella di carico.
