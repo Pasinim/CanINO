@@ -31,7 +31,7 @@ Le funzionalità offerte sono le seguenti.
 
 ## Macchina a stati finiti
 
-![](C:\Users\Marco\Desktop\CanINO\CanINO\FSM.drawio.png)
+![](https://github.com/Pasinim/CanINO/blob/main/images/fsm.drawio.png)
 
 ## Funzionamento
 
@@ -59,7 +59,7 @@ Il progetto "CanINO" funziona nel seguente modo:
 
 ## Schema dei Collegamenti
 
-![](C:\Users\Marco\Desktop\CanINO\CanINO\CanINO_bb.png)
+![](https://github.com/Pasinim/CanINO/blob/main/images/CanINO_bb.png)
 
 ## 
 
