@@ -9,7 +9,7 @@ Il progetto `CanINO` è un dosatore automatico per animali, progettato per forni
 | Sensore/Attuatore | Funzione                                                                                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Arduino           | Microcontrollore                                                                                                        |
-| Potenziometro     | Controllo dell'orario di erogazione e della quantità di cibo erogabile                                                  |
+| Potenziometro     | Permette il controllo dell'orario di erogazione e della quantità di cibo erogabile (in modalità setup)                                                  |
 | Display OLED I2C  | Permette la visualizzazione dell'orario corrente, dell'orario di erogazione e della quantità dì cibo che verrà erogata. |
 | 28BYJ-48          | Stepper motor che permette l'erogazione del cibo                                                                        |
 | ULN2003           | Driver per il controllo dello stepper motor                                                                             |
@@ -23,11 +23,11 @@ Il progetto `CanINO` è un dosatore automatico per animali, progettato per forni
 
 Le funzionalità offerte sono le seguenti.
 
-1. Dosaggio del Cibo: Il dosatore può erogare una quantità specifica di cibo, regolata tramite il potenziometro,
-2. Programmazione dell'orario: È possibile impostare l'ora in cui erogare il cibo. Il dosatore erogherà automaticamente il cibo alla stessa ora ogni giorno,
-3. Display delle Informazioni: Il display OLED permette di visualizzare la quantità di cibo (g) impostata e l'orario dell'erogazione,
-4. Misurazione del Peso: La cella di carico misura il peso del cibo, disattivando i servo motori quando la quantità erogata corrisponde a quella impostata.
-5. L'orologio mantiene l'ora corretta (dopo averla impostata correttamente la prima volta) anche in seguito allo spegnimento della board, grazie al modulo DS3231 che è alimentato da una pila.
+1. Dosaggio del cibo: il dosatore può erogare una quantità specifica di cibo, regolata tramite il potenziometro,
+2. Programmazione dell'orario: è possibile impostare l'ora in cui erogare il cibo. Il dosatore erogherà automaticamente il cibo alla stessa ora ogni giorno,
+3. Display delle Informazioni: il display OLED permette di visualizzare la quantità di cibo (g) impostata e l'orario dell'erogazione,
+4. Misurazione del peso: la cella di carico misura il peso del cibo, disattivando i servo motori quando la quantità erogata corrisponde a quella impostata.
+5. Mantenimento dell'ora corretta (dopo averla impostata correttamente la prima volta) anche in seguito allo spegnimento della board, grazie al modulo DS3231 che è alimentato da una pila.
 
 ## Macchina a stati finiti
 
@@ -37,9 +37,9 @@ Le funzionalità offerte sono le seguenti.
 
 Il progetto "CanINO" funziona nel seguente modo:
 
-1. L'utente sceglie se avviare la modalità "Setup" o "Idle" tramite un interruttore
+1. L'utente sceglie se avviare la modalità "Setup" o "Idle" tramite un interruttore;
 
-2. _Modalità Setup_
+2. _Modalità Setup_:
    
    - Il pulsante permette di passare dalla regolazione dell'orario alla regolazione della quantità di cibo da erogare e viceversa
    
@@ -47,21 +47,20 @@ Il progetto "CanINO" funziona nel seguente modo:
    
    - La quantità di cibo erogabile va da un limite inferiore definita nel codice tramite la costante `lower` mentre quella massima è definita dalla costante `upper`.
 
-3. _Modalità Idle_
+3. _Modalità Idle_:
    
    - Quando l'orario corrente corrisponde con l'orario di erogazione impostato il dosatore attiva i servo motori per erogare il cibo,
    
    - La cella di carico miusura il peso del cibo e disattiva i servo motori al raggiungimento del peso
 
-4. Quando arriva l'ora impostata, il dosatore attiva i servo motori per erogare la quantità di cibo impostata.
+4. Quando arriva l'ora impostata, il motore del dosatore si attiva per erogare la quantità di cibo impostata;
 
-5. La cella di carico misura il peso del cibo nel contenitore e disattiva i servo motori al raggiungimento del peso
+5. La cella di carico misura il peso del cibo nel contenitore e disattiva il motore dell'erogatore al raggiungimento del peso.
 
 ## Schema dei Collegamenti
 
 ![](https://github.com/Pasinim/CanINO/blob/main/images/CanINO_bb.png)
 
-## 
 
 ---
 
@@ -77,7 +76,7 @@ Con questa implementazione però non era possibile controllare con precisione il
 
 ## Codice rilevante
 
-### Impostazione dell'orario corrente
+#### Impostazione dell'orario corrente
 
 Il modulo RS3231 permette il mantenimento dell'orario anche se la board non è alimentata. Tuttavia è necessaria la configurazione se il modulo non è in esecuzione e ciò viene fatto con il seguente codice.
 
@@ -87,7 +86,7 @@ Il modulo RS3231 permette il mantenimento dell'orario anche se la board non è a
   }
 ```
 
-### Calibrazione cella di carico
+#### Calibrazione cella di carico
 
 Il HX711 è un convertitore analogico-digitale (ADC) con una risoluzione fissa di 24 bit e prima di utilizzarla per misurare il peso è necessario effettuare una calibrazione per ottenere letture accurate e coerenti dalla cella di carico collegata.
 
