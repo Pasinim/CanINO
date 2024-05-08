@@ -26,7 +26,7 @@ Le funzionalità offerte sono le seguenti.
 1. Dosaggio del cibo: il dosatore può erogare una quantità specifica di cibo, regolata tramite il potenziometro,
 2. Programmazione dell'orario: è possibile impostare l'ora in cui erogare il cibo. Il dosatore erogherà automaticamente il cibo alla stessa ora ogni giorno,
 3. Display delle Informazioni: il display OLED permette di visualizzare la quantità di cibo (g) impostata e l'orario dell'erogazione,
-4. Misurazione del peso: la cella di carico misura il peso del cibo, disattivando i servo motori quando la quantità erogata corrisponde a quella impostata.
+4. Misurazione del peso: la cella di carico misura il peso del cibo, disattivando l'erogatore quando la quantità erogata corrisponde a quella impostata.
 5. Mantenimento dell'ora corretta (dopo averla impostata correttamente la prima volta) anche in seguito allo spegnimento della board, grazie al modulo DS3231 che è alimentato da una pila.
 
 ## Macchina a stati finiti
@@ -49,13 +49,9 @@ Il progetto "CanINO" funziona nel seguente modo:
 
 3. _Modalità Idle_:
    
-   - Quando l'orario corrente corrisponde con l'orario di erogazione impostato il dosatore attiva i servo motori per erogare il cibo,
-   
-   - La cella di carico miusura il peso del cibo e disattiva i servo motori al raggiungimento del peso
+   -  Quando arriva l'ora impostata, il motore del dosatore si attiva per erogare la quantità di cibo impostata;
 
-4. Quando arriva l'ora impostata, il motore del dosatore si attiva per erogare la quantità di cibo impostata;
-
-5. La cella di carico misura il peso del cibo nel contenitore e disattiva il motore dell'erogatore al raggiungimento del peso.
+   -  La cella di carico misura il peso del cibo nel contenitore e disattiva il motore dell'erogatore al raggiungimento del peso.
 
 ## Schema dei Collegamenti
 
