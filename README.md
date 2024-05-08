@@ -2,7 +2,7 @@
 
 ## Introduzione
 
-Il progetto `CanINO` è un dosatore automatico per animali, progettato per fornire cibo e acqua agli animali domestici in modo automatico, seguendo quantità e orari prestabiliti.
+Il progetto `CanINO` è un dosatore automatico per animali, progettato per fornire cibo agli animali domestici in modo automatico, seguendo quantità e orari prestabiliti.
 
 ## Sensori ed attuatori utilizzati
 
