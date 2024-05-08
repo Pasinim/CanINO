@@ -19,19 +19,6 @@ Il progetto `CanINO` è un dosatore automatico per animali, progettato per forni
 | Pulsante          | Utilizzato per cambiare tra la modalità di configurazione tra orario e quantità di cibo e viceversa                     |
 | Switch            | Utilizzato per entrare in modalità setup                                                                                |
 
-`CanINO` utilizza i seguenti componenti:
-
-- Arduino
-- Potenziometro
-- Display OLED I2C
-- Stepper motor 28BYJ-48
-- Driver ULN2003
-- Cella di carico
-- HX711
-- DS3231 RTC
-- Pulsante
-- Interruttore
-
 ## Funzionalità
 
 Le funzionalità offerte sono le seguenti.
@@ -53,17 +40,17 @@ Il progetto "CanINO" funziona nel seguente modo:
 1. L'utente sceglie se avviare la modalità "Setup" o "Idle" tramite un interruttore
 
 2. _Modalità Setup_
-
+   
    - Il pulsante permette di passare dalla regolazione dell'orario alla regolazione della quantità di cibo da erogare e viceversa
-
+   
    - La quantità di cibo e l'orario di ergoazione sono impostabili tramite il potenziomentro
-
+   
    - La quantità di cibo erogabile va da un limite inferiore definita nel codice tramite la costante `lower` mentre quella massima è definita dalla costante `upper`.
 
 3. _Modalità Idle_
-
+   
    - Quando l'orario corrente corrisponde con l'orario di erogazione impostato il dosatore attiva i servo motori per erogare il cibo,
-
+   
    - La cella di carico miusura il peso del cibo e disattiva i servo motori al raggiungimento del peso
 
 4. Quando arriva l'ora impostata, il dosatore attiva i servo motori per erogare la quantità di cibo impostata.
@@ -74,7 +61,7 @@ Il progetto "CanINO" funziona nel seguente modo:
 
 ![](C:\Users\Marco\Desktop\CanINO\CanINO\CanINO_bb.png)
 
-##
+## 
 
 ---
 
