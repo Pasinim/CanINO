@@ -1,41 +1,50 @@
 # CanINO
 
-Il seguente README è ancoira in fase preliminare e sarà soggetto a modifiche o aggiunte
-
 ## Introduzione
 
 Il progetto `CanINO` è un dosatore automatico per animali, progettato per fornire cibo e acqua agli animali domestici in modo automatico, seguendo quantità e orari prestabiliti.
 
 ## Sensori ed attuatori utilizzati
 
+| Sensore/Attuatore | Funzione                                                                                                                |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Arduino           | Microcontrollore                                                                                                        |
+| Potenziometro     | Controllo dell'orario di erogazione e della quantità di cibo erogabile                                                  |
+| Display OLED I2C  | Permette la visualizzazione dell'orario corrente, dell'orario di erogazione e della quantità dì cibo che verrà erogata. |
+| 28BYJ-48          | Stepper motor che permette l'erogazione del cibo                                                                        |
+| ULN2003           | Driver per il controllo dello stepper motor                                                                             |
+| Cella di carico   | Produce un segnale di uscita in base alla deformazione a cui è soggetto, viene utilizzato per pesare il cibo erogato    |
+| HX711             | Convertirore analogico-digitale che converte l'output della cella di carico in grammi                                   |
+| DS3231            | RTC che mantiene l'orario impostato in assenza di alimentazione alla board                                              |
+| Pulsante          | Utilizzato per cambiare tra la modalità di configurazione tra orario e quantità di cibo e viceversa                     |
+| Switch            | Utilizzato per entrare in modalità setup                                                                                |
+
 `CanINO` utilizza i seguenti componenti:
 
 - Arduino
 - Potenziometro
 - Display OLED I2C
-- 2 Servo Motori
-- Pompa acqua
+- Stepper motor 28BYJ-48
+- Driver ULN2003
 - Cella di carico
+- HX711
 - DS3231 RTC
 - Pulsante
+- Interruttore
 
 ## Funzionalità
 
-Le funzionalità offerte sono le seguenti:
+Le funzionalità offerte sono le seguenti.
 
 1. Dosaggio del Cibo: Il dosatore può erogare una quantità specifica di cibo, regolata tramite il potenziometro,
 2. Programmazione dell'orario: È possibile impostare l'ora in cui erogare il cibo. Il dosatore erogherà automaticamente il cibo alla stessa ora ogni giorno,
-3. Riempimento dell'Acqua: La pompa dell'acqua riempirà la ciotola dell'acqua alla pressione dell'apposito tasto,
-4. Display delle Informazioni: Il display OLED permette di visualizzare la quantità di cibo (g) impostata e l'orario dell'erogazione,
-5. Misurazione del Peso: La cella di carico misura il peso del cibo, disattivando i servo motori quando la quantità erogata corrisponde a quella impostata.
+3. Display delle Informazioni: Il display OLED permette di visualizzare la quantità di cibo (g) impostata e l'orario dell'erogazione,
+4. Misurazione del Peso: La cella di carico misura il peso del cibo, disattivando i servo motori quando la quantità erogata corrisponde a quella impostata.
+5. L'orologio mantiene l'ora corretta (dopo averla impostata correttamente la prima volta) anche in seguito allo spegnimento della board, grazie al modulo DS3231 che è alimentato da una pila.
 
-## Schema dei Collegamenti
+## Macchina a stati finiti
 
-Segue uno schema dei collegamenti tra i componenti utilizzati nel progetto:
-
-```
-//TODO
-```
+![](C:\Users\Marco\Desktop\CanINO\CanINO\FSM.drawio.png)
 
 ## Funzionamento
 
@@ -43,11 +52,13 @@ Il progetto "CanINO" funziona nel seguente modo:
 
 1. L'utente sceglie se avviare la modalità "Setup" o "Idle" tramite un interruttore
 
-2. 1 _Modalità Setup_
+2. _Modalità Setup_
 
-   - L'utente regola la quantità di cibo desiderata tramite il potenziometro.
+   - Il pulsante permette di passare dalla regolazione dell'orario alla regolazione della quantità di cibo da erogare e viceversa
 
-   - Premento il pulsante l'utente passa all'impostazione dell'ora regolabile tramite il potenziometro.
+   - La quantità di cibo e l'orario di ergoazione sono impostabili tramite il potenziomentro
+
+   - La quantità di cibo erogabile va da un limite inferiore definita nel codice tramite la costante `lower` mentre quella massima è definita dalla costante `upper`.
 
 3. _Modalità Idle_
 
@@ -59,70 +70,39 @@ Il progetto "CanINO" funziona nel seguente modo:
 
 5. La cella di carico misura il peso del cibo nel contenitore e disattiva i servo motori al raggiungimento del peso
 
+## Schema dei Collegamenti
+
+![](C:\Users\Marco\Desktop\CanINO\CanINO\CanINO_bb.png)
+
+##
+
 ---
 
-## Calibrazione cella di carico
+## Problemi riscontrati
+
+- Uno dei principali problemi incontrati riguarda il processo di erogazione del cibo. Inizialmente, il progetto prevedeva l'utilizzo di un imbuto sigillato con un pezzo di ferro, mentre l'erogazione era regolata tramite dei servo motori collegati con degli elastici all'imbuto erogatore e al pezzo di metallo. Per erogare il cibo, era necessario azionare i servo motori per aprire il pezzo di metallo come una sorta di botola.
+
+Con questa implementazione però non era possibile controllare con precisione il cibo erogato quindi ho stampato un dosatore in 3D che permette l'erogazione in modo più uniforme e preciso. Anche in questo modo però ho riscontrato dei problemi, infatti sia con del riso sia con delle crocchette per cani il cibo si incastrava nel dosatore fermando il motore. Per questo motivo ho utilizzato delle sfere di metallo. Ovviamente non si tratta di una soluzione ideale, soprattutto perchè le sfere si incastrano comunque nel cilindo superiore dell'erogatore. Per ovviare a questi problemi bisognerebbe modellare l'erogatore in un altro modo.
+
+- Durante l'erogazione del cibo l'orario visualizzato sul display non viene aggiornato ma rimane fermo (al secondo precedente) all'orario di erogazione. Si tratta di un problema di poco conto, anche se bisogna considerare che l'erogazione del cibo non avviene in modo rapido, impiegado anche minuti se la quantità di cibo è elevata. Per risolvere questo problema si potrebbe ricorrere ad un motore con voltaggio superiore per eseguire più rotazioni al minuto oppure aggiornando la funzione di erogazione inserendo al suo interno il refresh del display.
+
+---
+
+## Codice rilevante
+
+### Impostazione dell'orario corrente
+
+Il modulo RS3231 permette il mantenimento dell'orario anche se la board non è alimentata. Tuttavia è necessaria la configurazione se il modulo non è in esecuzione e ciò viene fatto con il seguente codice.
+
+```c
+  if (! rtc.isrunning()) {
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+```
+
+### Calibrazione cella di carico
 
 Il HX711 è un convertitore analogico-digitale (ADC) con una risoluzione fissa di 24 bit e prima di utilizzarla per misurare il peso è necessario effettuare una calibrazione per ottenere letture accurate e coerenti dalla cella di carico collegata.
 
 La calibrazione è stata eseguita con il seguente [codice ]
 (https://github.com/RobTillaart/HX711), i valori ottenuti sono stati salvati nelle variabili `offset_hx711` e `calibration_factor`.
-
-```c
-void calibrate()
-{
-  Serial.println("\n\nCALIBRATION\n===========");
-  Serial.println("remove all weight from the loadcell");
-  //  flush Serial input
-  while (Serial.available()) Serial.read();
-
-  Serial.println("and press enter\n");
-  while (Serial.available() == 0);
-
-  Serial.println("Determine zero weight offset");
-  myScale.tare(20);  // average 20 measurements.
-  uint32_t offset = myScale.get_offset();
-
-  Serial.print("OFFSET: ");
-  Serial.println(offset);
-  Serial.println();
-
-
-  Serial.println("place a weight on the loadcell");
-  //  flush Serial input
-  while (Serial.available()) Serial.read();
-
-  Serial.println("enter the weight in (whole) grams and press enter");
-  uint32_t weight = 0;
-  while (Serial.peek() != '\n')
-  {
-    if (Serial.available())
-    {
-      char ch = Serial.read();
-      if (isdigit(ch))
-      {
-        weight *= 10;
-        weight = weight + (ch - '0');
-      }
-    }
-  }
-  Serial.print("WEIGHT: ");
-  Serial.println(weight);
-  myScale.calibrate_scale(weight, 20);
-  float scale = myScale.get_scale();
-
-  Serial.print("SCALE:  ");
-  Serial.println(scale, 6);
-
-  Serial.print("\nuse scale.set_offset(");
-  Serial.print(offset);
-  Serial.print("); and scale.set_scale(");
-  Serial.print(scale, 6);
-  Serial.print(");\n");
-  Serial.println("in the setup of your project");
-
-  Serial.println("\n\n");
-}
-```
-
- per la calibrazione della cella di carico.
