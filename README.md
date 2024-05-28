@@ -1,5 +1,5 @@
 # CanINO
-
+Progetto realizzato per il corso di [sistemi embedded](https://gitlab.di.unimi.it/sistemiembedded/2022-2023).
 ## Introduzione
 
 Il progetto `CanINO` è un dosatore automatico per animali, progettato per fornire cibo agli animali domestici in modo automatico, seguendo quantità e orari prestabiliti.
